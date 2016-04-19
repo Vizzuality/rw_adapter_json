@@ -1,0 +1,7 @@
+web:
+  build: .
+  command: run
+  ports:
+    - "3010:3010"
+  volumes:
+    - .:/rw_adapter_json

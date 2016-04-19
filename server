@@ -1,0 +1,60 @@
+#! /bin/bash
+
+case "$1" in
+    start)
+        ps -ef | grep 3010 | grep puma
+        if [ $? -eq 1 ]
+        then
+          case "$2" in
+            develop)
+              echo "Startting server..."
+              bundle exec puma -t 5:5 -d -p ${RW_JSON_PORT:-3010} -e ${RW_JSON_ENV:-development} -S ~/puma -C config/puma.rb
+              echo "Server running on port 3010 ;)!"
+              echo "Register RW Json Adapter"
+              curl --request POST \
+                   --url http://192.168.99.100:8000/gateway/service \
+                   --header 'cache-control: no-cache' \
+                   --header 'content-type: application/json' \
+                   --data "$(cat lib/files/service_develop.json)"
+            ;;
+            esac
+        else
+          echo "Server already running on port 3010 ;)!"
+        fi
+        ;;
+    stop)
+        ps -ef | grep 3010 | grep puma
+        if [ $? -eq 1 ]
+        then
+          echo "Server is down."
+        else
+          echo "Stopping server..."
+          kill -9 $(lsof -i tcp:3010 -t)
+          echo "Server is down."
+        fi
+        ;;
+    status)
+        ps -ef | grep 3010 | grep puma
+        if [ $? -eq 1 ]
+        then
+          echo "Server is down."
+        else
+          echo "Server running on port 3010 ;)!"
+        fi
+        ;;
+    restart)
+        ps -ef | grep 3010 | grep puma
+        if [ $? -eq 1 ]
+        then
+          bundle exec puma -t 5:5 -d -p ${RW_JSON_PORT:-3010} -e ${RW_JSON_ENV:-development} -S ~/puma -C config/puma.rb
+        else
+          kill -9 $(lsof -i tcp:3010 -t) && bundle exec puma -t 5:5 -d -p ${RW_JSON_PORT:-3010} -e ${RW_JSON_ENV:-development} -S ~/puma -C config/puma.rb
+        fi
+        ;;
+  *)
+        echo "Usage: server {start|stop|status|restart}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

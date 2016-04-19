@@ -1,0 +1,19 @@
+{
+    "id": "rw_adapter_json_v1",
+    "name": "RW Adapter Json v1",
+    "urls": [{
+        "url": "/query/:dataset",
+        "method": "GET",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+            "provider": "RwJson"
+        },
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "http://192.168.1.57:3010",
+            "path": "/query/:dataset",
+            "data": ["dataset"]
+        }]
+    }]
+}
