@@ -15,18 +15,20 @@ ActiveRecord::Schema.define(version: 20160411161037) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "citext"
 
   create_table "datasets", force: :cascade do |t|
-    t.jsonb    "data_columns"
-    t.jsonb    "data"
+    t.jsonb    "data_columns",  default: []
+    t.jsonb    "data",          default: {}
     t.integer  "format",        default: 0
     t.integer  "row_count"
     t.integer  "dateable_id"
     t.string   "dateable_type"
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
   end
 
+  add_index "datasets", ["data"], name: "index_datasets_on_data", using: :gin
   add_index "datasets", ["dateable_id", "dateable_type"], name: "index_datasets_on_connector_and_connector_type", unique: true, using: :btree
 
   create_table "json_connectors", force: :cascade do |t|
