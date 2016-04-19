@@ -4,7 +4,7 @@ module Filters
       to_select = if select_params.present?
                     select_params.join(',').split(',')
                   else
-                    attribute_keys = Dataset.connection.select_all("SELECT DISTINCT jsonb_object_keys(jsonb_array_elements(data)) as attribute_key FROM datasets WHERE id=#{dataset_id}")
+                    attribute_keys = Dataset.execute_data_query("SELECT DISTINCT jsonb_object_keys(jsonb_array_elements(data)) as attribute_key FROM datasets WHERE id=#{dataset_id}")
                     attribute_keys.to_ary.map { |v| v['attribute_key'] }.join(',').split(',')
                   end
 

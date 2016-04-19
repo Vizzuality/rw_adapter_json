@@ -5,4 +5,9 @@ class Dataset < ApplicationRecord
   include NullAttributesRemover
 
   belongs_to :dateable, polymorphic: true
+
+  def self.execute_data_query(sql_org)
+    sql = sanitize_sql(sql_org)
+    connection.select_all(sql)
+  end
 end
