@@ -2,11 +2,14 @@ class DatasetParams < Hash
   def initialize(params)
     sanitized_params = {
       id: params[:id] || nil,
-      connector_name: params[:connector_name] || nil,
+      name: params[:name] || nil,
       provider: params[:provider] || nil,
       format: params[:format] || nil,
-      data_attributes: params[:data_attributes] || [],
-      connector_path: params[:connector_path] || nil
+      data_path: params[:data_path] || nil,
+      data_horizon: params[:data_horizon] || nil,
+      attributes_path: params[:attributes_path] || nil,
+      data_columns: params[:data_columns] || {},
+      data: params[:data] || []
     }
 
     super(sanitized_params)

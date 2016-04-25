@@ -96,6 +96,8 @@ task deploy: :environment do
         else
           fuser -n tcp -k 3000 && bundle exec puma -d -t 5:5 -d -p 3010 -e production -S ~/puma -C config/puma.rb
         fi
+        echo "Starting sidekiq..."
+        bundle exec sidekiq -C config/sidekiq.yml -e production
       ]
     end
   end

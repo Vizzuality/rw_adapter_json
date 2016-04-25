@@ -23,11 +23,11 @@ default: &default
 
 development:
   <<: *default
-  database: rw_dataset_development
+  database: json_adapter_development
 
 test:
   <<: *default
-  database: rw_dataset_test
+  database: json_adapter_test
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -50,6 +50,6 @@ test:
 #
 production:
   <<: *default
-  database: rw_dataset_production
+  database: json_adapter_production
   username: <%= ENV['RESOURCE_WATCH_DATABASE_USER'] %>
   password: <%= ENV['RESOURCE_WATCH_DATABASE_PASSWORD'] %>
