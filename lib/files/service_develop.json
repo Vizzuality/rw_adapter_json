@@ -15,5 +15,13 @@
             "path": "/query/:dataset",
             "data": ["dataset"]
         }]
+    },{
+        "url": "/json-datasets",
+        "method": "POST",
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "http://192.168.1.57:3010",
+            "path": "/datasets"
+        }]
     }]
 }

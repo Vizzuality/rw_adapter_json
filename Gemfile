@@ -16,6 +16,7 @@ group :development, :test do
   gem 'byebug'
   gem 'faker'
   gem 'rubocop', require: false
+  gem 'rspec-activejob'
 end
 
 group :development do
@@ -25,6 +26,7 @@ group :development do
   gem 'pry-rails'
   gem 'mina'
   gem 'brakeman', require: false
+  gem 'annotate'
 end
 
 group :test do
@@ -40,3 +42,4 @@ gem 'redis', '~> 3.2'
 gem 'rack-cors'
 gem 'rack-attack'
 gem 'bcrypt'
+gem 'sidekiq'

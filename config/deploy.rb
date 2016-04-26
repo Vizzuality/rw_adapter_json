@@ -24,7 +24,7 @@ set :foreman_sudo, 'ubuntu'
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
-set :shared_paths, ['config/database.yml', 'config/secrets.yml', 'log', '.env']
+set :shared_paths, ['config/database.yml', 'config/secrets.yml', 'config/sidekiq.yml', 'log', '.env']
 
 # Optional settings:
 #   set :user, 'foobar'    # Username in the server to SSH to.
@@ -82,7 +82,7 @@ task deploy: :environment do
     invoke :'git:clone'
     invoke :'deploy:link_shared_paths'
     invoke :'bundle:install'
-    # invoke :'rails:db_migrate'
+    invoke :'rails:db_migrate'
     # invoke :'rails:assets_precompile'
     invoke :'deploy:cleanup'
     queue  "cd #{deploy_to}/#{current_path} ; rvmsudo bundle exec foreman export upstart /etc/init -a #{application} -u ubuntu -d #{deploy_to}/#{current_path} -l #{deploy_to}/#{shared_path}/log -f Procfile"
@@ -96,6 +96,8 @@ task deploy: :environment do
         else
           fuser -n tcp -k 3000 && bundle exec puma -d -t 5:5 -d -p 3010 -e production -S ~/puma -C config/puma.rb
         fi
+        echo "Starting sidekiq..."
+        bundle exec sidekiq -C config/sidekiq.yml -e production
       ]
     end
   end
