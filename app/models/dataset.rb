@@ -10,10 +10,7 @@
 #  updated_at   :datetime         not null
 #
 
-
 class Dataset < ApplicationRecord
-  include NullAttributesRemover
-
   after_create :update_data_columns, if: 'data.any? && data_columns == data.first'
 
   class << self
