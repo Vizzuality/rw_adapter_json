@@ -92,9 +92,13 @@ task deploy: :environment do
         ps -ef | grep 3010 | grep puma
         if [ $? -eq 1 ]
         then
+          echo "Starting server"
           bundle exec puma -d -t 5:5 -d -p 3010 -e production -S ~/puma -C config/puma.rb
+          ps -ef | grep 3010 | grep puma
         else
+          echo "Restarting server"
           fuser -n tcp -k 3000 && bundle exec puma -d -t 5:5 -d -p 3010 -e production -S ~/puma -C config/puma.rb
+          ps -ef | grep 3010 | grep puma
         fi
         echo "Starting sidekiq..."
         bundle exec sidekiq -C config/sidekiq.yml -e production
