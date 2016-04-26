@@ -9,19 +9,15 @@ module V1
     end
 
     def create
-      # begin
-      #   @dataset = JsonConnector.build_dataset(connector_params)
-      #   @dataset.save
-      #   render json: { success: true, message: 'Dataset created' }, status: 201
-      #   notify('saved')
-      # rescue
-      #   render json: { success: false, message: 'Error creating dataset' }, status: 422
-      #   notify
-      # end
-      @dataset = JsonConnector.build_dataset(connector_params)
+      begin
+        @dataset = JsonConnector.build_dataset(connector_params)
         @dataset.save
         render json: { success: true, message: 'Dataset created' }, status: 201
         notify('saved')
+      rescue
+        render json: { success: false, message: 'Error creating dataset' }, status: 422
+        notify
+      end
     end
 
     private
