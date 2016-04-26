@@ -20,8 +20,7 @@ class Dataset < ApplicationRecord
     end
 
     def notifier(object_id, status=nil)
-      # DatasetServiceJob.perform_later(object_id, status)
-      ConnectorService.connect_to_dataset_service(object_id, status)
+      DatasetServiceJob.perform_later(object_id, status)
     end
 
     def build_dataset(params)
