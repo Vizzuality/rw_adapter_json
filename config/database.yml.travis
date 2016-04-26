@@ -1,6 +1,6 @@
 test:
   adapter: postgresql
-  database: rw_dataset_test
+  database: json_adapter_test
   username: postgres
   password:
   port: 5433

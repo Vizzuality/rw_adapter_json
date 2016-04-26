@@ -1,5 +1,5 @@
 class ConnectorSerializer < ActiveModel::Serializer
-  attributes :id, :connector_name, :provider, :format, :connector_path, :clone_url, :data_attributes, :data
+  attributes :id, :data_horizon, :clone_url, :data_attributes, :data
 
   def clone_url
     data = {}
@@ -11,6 +11,10 @@ class ConnectorSerializer < ActiveModel::Serializer
 
   def data
     object.data(@options[:query_filter])
+  end
+
+  def data_attributes
+    object.data_columns
   end
 
   def uri

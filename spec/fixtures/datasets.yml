@@ -1,10 +1,19 @@
 ---
-json_data_1:
-  id: 1
-  dateable_id: 1
-  dateable_type: 'JsonConnector'
-  created_at: '2016-03-03 20:00:00.050118'
-  updated_at: '2016-03-03 20:00:00.050118'
+dataset_1:
+  data_columns: '{
+                  "pcpuid": {
+                    "type": "string"
+                  },
+                  "the_geom": {
+                    "type": "geometry"
+                  },
+                  "cartodb_id": {
+                    "type": "number"
+                  },
+                  "the_geom_webmercator": {
+                    "type": "geometry"
+                  }
+                }'
   data: '[{
             "pcpuid": "350558",
             "the_geom": "0101000020E610000000000000786515410000000078651541",
@@ -35,19 +44,33 @@ json_data_1:
             "cartodb_id": 1,
             "the_geom_webmercator": null
           }]'
+  data_horizon: 0
+  created_at: '2016-03-01 20:00:00.050118'
+  updated_at: '2016-03-01 20:00:00.050118'
+dataset_2:
   data_columns: '{
-                  "pcpuid": {"type": "string" },
-                  "the_geom": {"type": "geometry" },
-                  "cartodb_id": {"type": "number" },
-                  "the_geom_webmercator": {"type": "geometry" }
+                  "iso": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "string"
+                  },
+                  "the_geom": {
+                    "type": "geometry"
+                  },
+                  "cartodb_id": {
+                    "type": "number"
+                  },
+                  "population": {
+                    "type": "number"
+                  },
+                  "the_geom_webmercator": {
+                    "type": "geometry"
+                  }
                 }'
-
-json_data_2:
-  id: 2
-  dateable_id: 2
-  dateable_type: 'JsonConnector'
-  created_at: '2016-03-03 20:00:00.050118'
-  updated_at: '2016-03-03 20:00:00.050118'
   data: '[{
             "pcpuid": "350558",
             "the_geom": "0101000020E610000000000000786515410000000078651541",
@@ -78,9 +101,6 @@ json_data_2:
             "cartodb_id": 1,
             "the_geom_webmercator": null
           }]'
-  data_columns: '{
-                  "pcpuid": {"type": "string" },
-                  "the_geom": {"type": "geometry" },
-                  "cartodb_id": {"type": "number" },
-                  "the_geom_webmercator": {"type": "geometry" }
-                }'
+  data_horizon: 1
+  created_at: '2016-03-02 20:00:00.050118'
+  updated_at: '2016-03-02 20:00:00.050118'
