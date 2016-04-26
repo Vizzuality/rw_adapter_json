@@ -57,6 +57,13 @@ case "$1" in
         echo "Starting sidekiq..."
         bundle exec sidekiq -C config/sidekiq.yml
         ;;
+    register-service)
+        curl --request POST \
+             --url http://ec2-52-23-163-254.compute-1.amazonaws.com/gateway/service \
+             --header 'cache-control: no-cache' \
+             --header 'content-type: application/json' \
+             --data "$(cat lib/files/service.json)"
+        ;;
   *)
         echo "Usage: server {start|stop|status|restart}" >&2
         exit 1
