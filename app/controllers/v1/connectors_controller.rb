@@ -3,22 +3,25 @@ module V1
     before_action :set_connector
     before_action :set_query_filter
     before_action :set_uri
-    before_action :gateway_urls
 
     def show
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri
     end
 
     def create
-      begin
-        @dataset = Dataset.new(connector_params)
+      # begin
+      #   @dataset = JsonConnector.build_dataset(connector_params)
+      #   @dataset.save
+      #   render json: { success: true, message: 'Dataset created' }, status: 201
+      #   notify('saved')
+      # rescue
+      #   render json: { success: false, message: 'Error creating dataset' }, status: 422
+      #   notify
+      # end
+      @dataset = JsonConnector.build_dataset(connector_params)
         @dataset.save
         render json: { success: true, message: 'Dataset created' }, status: 201
         notify('saved')
-      rescue
-        render json: { success: false, message: 'Error creating dataset' }, status: 422
-        notify
-      end
     end
 
     private
@@ -41,17 +44,12 @@ module V1
 
       def set_uri
         @uri = {}
-        @uri['api_gateway_url'] = @api_gateway_url
+        @uri['api_gateway_url'] = ENV['API_GATEWAY_URL'] if ENV['API_GATEWAY_URL'].present?
         @uri['full_path']       = request.fullpath
       end
 
-      def gateway_urls
-        @api_dataset_meta_url = ENV['API_DATASET_META_URL']
-        @api_gateway_url      = ENV['API_GATEWAY_URL']
-      end
-
       def notify(status=nil)
-        Dataset.notifier(connector_params['id'], status) if @api_dataset_meta_url
+        Dataset.notifier(connector_params['id'], status) if ENV['API_DATASET_META_URL'].present?
       end
 
       def meta_data_params

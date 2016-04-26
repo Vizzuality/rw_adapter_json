@@ -24,7 +24,7 @@ set :foreman_sudo, 'ubuntu'
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
-set :shared_paths, ['config/database.yml', 'config/secrets.yml', 'log', '.env']
+set :shared_paths, ['config/database.yml', 'config/secrets.yml', 'config/sidekiq.yml', 'log', '.env']
 
 # Optional settings:
 #   set :user, 'foobar'    # Username in the server to SSH to.
@@ -82,7 +82,7 @@ task deploy: :environment do
     invoke :'git:clone'
     invoke :'deploy:link_shared_paths'
     invoke :'bundle:install'
-    # invoke :'rails:db_migrate'
+    invoke :'rails:db_migrate'
     # invoke :'rails:assets_precompile'
     invoke :'deploy:cleanup'
     queue  "cd #{deploy_to}/#{current_path} ; rvmsudo bundle exec foreman export upstart /etc/init -a #{application} -u ubuntu -d #{deploy_to}/#{current_path} -l #{deploy_to}/#{shared_path}/log -f Procfile"

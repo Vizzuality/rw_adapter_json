@@ -9,7 +9,8 @@ class DatasetParams < Hash
       data_horizon: params[:data_horizon] || nil,
       attributes_path: params[:attributes_path] || nil,
       data_columns: params[:data_columns] || {},
-      data: params[:data] || []
+      data: params[:data] || [],
+      connector_url: params[:connector_url] || nil
     }
 
     super(sanitized_params)

@@ -22,18 +22,22 @@ class JsonConnector
     Dataset.find(@id).try(:data_horizon)
   end
 
-  def new(params)
-    @dataset_url = params['dataset_url'] if params['dataset_url'].present?
-    @data_path   = params['data_path']   if params['data_path'].present?
-    if params['dataset_url'].present?
-      @recive_attributes = ConnectorService.connect_to_provider(@dataset_url, @data_path)
-      @data = { data: @recive_attributes }
-      params = params['data'].present? ? params : params.merge!(@data)
-    end
-    params = params['data_columns'].present? ? params                      : {}
-    params = params['dataset_url'].present?  ? params.except(:dataset_url) : params
-    params = params['data_path'].present?    ? params.except(:data_path)   : params
-    Dataset.new(params[:dataset].permit!)
+  def self.build_dataset(options)
+    dataset_url = options['connector_url'] if options['connector_url'].present?
+    data_path   = options['data_path']     if options['data_path'].present?
+    params = {}
+    params['data'] = if options['connector_url'].present? && options['data'].blank?
+                       ConnectorService.connect_to_provider(dataset_url, data_path)
+                     else
+                       options['data']
+                     end
+    params['id'] = options['id']
+    params['data_columns'] = if options['connector_url'].present? && options['data_columns'].blank?
+                               params['data'].first
+                             else
+                               options['data_columns'] || {}
+                             end
+    Dataset.new(params)
   end
 
   private
