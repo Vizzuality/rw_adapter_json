@@ -26,6 +26,10 @@ module V1
         @connector = JsonConnector.new(params) if params[:dataset].present? || params[:connector].present?
       end
 
+      def set_dataset
+        @dataset.find(params[:id])
+      end
+
       def set_query_filter
         @query_filter = {}
         @query_filter['select']     = params[:select] if params[:select].present?

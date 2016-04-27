@@ -1,8 +1,8 @@
-:concurrency: 25
+:concurrency: 1
 :pidfile: ./tmp/pids/sidekiq.pid
 :logfile: ./log/sidekiq.log
 production:
-  :concurrency: 20
+  :concurrency: 5
 :queues:
   - default
   - [high_priority, 2]

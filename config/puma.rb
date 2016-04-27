@@ -1,54 +1,25 @@
-# Puma can serve each request in a thread from an internal thread pool.
-# The `threads` method setting takes two numbers a minimum and maximum.
-# Any libraries that use thread pools should be configured to match
-# the maximum value specified for Puma. Default is set to 5 threads for minimum
-# and maximum, this matches the default thread size of Active Record.
-#
-threads_count = ENV.fetch("RAILS_MAX_THREADS") { 5 }.to_i
-threads threads_count, threads_count
+# Change to match your CPU core count
+# workers 1
 
-# Specifies the `port` that Puma will listen on to receive requests, default is 3000.
-#
-port        ENV.fetch("RW_JSON_PORT") { 3010 }
+# Min and Max threads per worker
+threads 0,5
 
-# Specifies the `environment` that Puma will run in.
-#
-environment ENV.fetch("RW_JSON_ENV") { "development" }
+rackup DefaultRackup
+# Default to 3000
+port ENV.fetch('RW_JSON_PORT') { 3010 }
+# Default to production
+environment ENV.fetch('RAILS_ENV') { 'development' }
 
-# Specifies the number of `workers` to boot in clustered mode.
-# Workers are forked webserver processes. If using threads and workers together
-# the concurrency of the application would be max `threads` * `workers`.
-# Workers do not work on JRuby or Windows (both of which do not support
-# processes).
-#
-# workers ENV.fetch("WEB_CONCURRENCY") { 2 }
+daemonize true
 
-# Use the `preload_app!` method when specifying a `workers` number.
-# This directive tells Puma to first boot the application and load code
-# before forking the application. This takes advantage of Copy On Write
-# process behavior so workers use less memory. If you use this option
-# you need to make sure to reconnect any threads in the `on_worker_boot`
-# block.
-#
-# preload_app!
-
-# The code in the `on_worker_boot` will be called if you are using
-# clustered mode by specifying a number of `workers`. After each worker
-# process is booted this block will be run, if you are using `preload_app!`
-# option you will want to use this block to reconnect to any threads
-# or connections that may have been created at application boot, Ruby
-# cannot share connections between processes.
-#
-# on_worker_boot do
-#   ActiveRecord::Base.establish_connection if defined?(ActiveRecord)
-# end
+# Set master PID and state locations
+pidfile    'tmp/pids/puma.pid'
+state_path 'tmp/pids/puma.state'
 
 on_worker_boot do
-  require 'active_record'
-  cwd = File.dirname(__FILE__)+"/.."
-  ActiveRecord::Base.connection.disconnect! rescue ActiveRecord::ConnectionNotEstablished
-  ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"] || YAML.load_file("#{cwd}/config/database.yml")[ENV["RW_JSON_ENV"]])
+  ActiveSupport.on_load(:active_record) do
+    config = ActiveRecord::Base.configurations[Rails.env] || Rails.application.config.database_configuration[Rails.env]
+    config['pool'] = ENV['MAX_THREADS'] || 5
+    ActiveRecord::Base.establish_connection(config)
+  end
 end
-
-# Allow puma to be restarted by `rails restart` command.
-plugin :tmp_restart
