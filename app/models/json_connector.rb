@@ -29,13 +29,13 @@ class JsonConnector
     params['data'] = if options['connector_url'].present? && options['data'].blank?
                        ConnectorService.connect_to_provider(dataset_url, data_path)
                      else
-                       options['data']
+                       Oj.dump(options['data'])
                      end
     params['id'] = options['id']
     params['data_columns'] = if options['connector_url'].present? && options['data_columns'].blank?
                                params['data'].first
                              else
-                               options['data_columns'] || {}
+                               Oj.dump(options['data_columns'])
                              end
     Dataset.new(params)
   end

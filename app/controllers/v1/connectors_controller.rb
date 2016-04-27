@@ -3,6 +3,7 @@ module V1
     before_action :set_connector
     before_action :set_query_filter
     before_action :set_uri
+    before_action :set_dataset, only: :destroy
 
     def show
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri
@@ -20,6 +21,15 @@ module V1
       end
     end
 
+    def destroy
+      @dataset.destroy
+      begin
+        render json: { message: 'Dataset deleted' }, status: 200
+      rescue ActiveRecord::RecordNotDestroyed
+        return render json: @dataset.erors, message: 'Dataset could not be deleted', status: 422
+      end
+    end
+
     private
 
       def set_connector
@@ -27,7 +37,7 @@ module V1
       end
 
       def set_dataset
-        @dataset.find(params[:id])
+        @dataset = Dataset.find(params[:id])
       end
 
       def set_query_filter
