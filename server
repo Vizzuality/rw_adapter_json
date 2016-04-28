@@ -18,8 +18,19 @@ case "$1" in
                    --header 'cache-control: no-cache' \
                    --header 'content-type: application/json' \
                    --data "$(cat lib/files/service_develop.json)"
-            ;;
-            esac
+              ;;
+            production)
+              echo "Startting server..."
+              bundle exec puma -e production -C config/puma.rb
+              echo "Server running on port 3010 ;)!"
+              echo "Starting sidekiq..."
+              bundle exec sidekiq -e production -C config/sidekiq.yml
+              ;;
+            *)
+              echo "Usage: server start {develop|production}" >&2
+              exit 1
+              ;;
+          esac
         else
           echo "Server already running on port 3010 ;)!"
         fi
@@ -62,7 +73,7 @@ case "$1" in
              --header 'content-type: application/json' \
              --data "$(cat lib/files/service.json)"
         ;;
-  *)
+    *)
         echo "Usage: server {start|stop|status|restart}" >&2
         exit 1
         ;;
