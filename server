@@ -8,7 +8,7 @@ case "$1" in
           case "$2" in
             develop)
               echo "Startting server..."
-              bundle exec puma -t 5:5 -d -p ${RW_JSON_PORT:-3010} -e ${RW_JSON_ENV:-development} -S ~/puma -C config/puma.rb
+              bundle exec puma -C config/puma.rb
               echo "Server running on port 3010 ;)!"
               echo "Starting sidekiq..."
               bundle exec sidekiq -C config/sidekiq.yml
@@ -50,12 +50,10 @@ case "$1" in
         ps -ef | grep 3010 | grep puma
         if [ $? -eq 1 ]
         then
-          bundle exec puma -t 5:5 -d -p ${RW_JSON_PORT:-3010} -e ${RW_JSON_ENV:-development} -S ~/puma -C config/puma.rb
+          bundle exec puma -C config/puma.rb
         else
-          kill -9 $(lsof -i tcp:3010 -t) && bundle exec puma -t 5:5 -d -p ${RW_JSON_PORT:-3010} -e ${RW_JSON_ENV:-development} -S ~/puma -C config/puma.rb
+          kill -9 $(lsof -i tcp:3010 -t) && bundle exec puma -C config/puma.rb
         fi
-        echo "Starting sidekiq..."
-        bundle exec sidekiq -C config/sidekiq.yml
         ;;
     register-service)
         curl --request POST \

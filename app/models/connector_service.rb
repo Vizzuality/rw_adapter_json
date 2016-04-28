@@ -17,7 +17,11 @@ class ConnectorService
     end
 
     def connect_to_dataset_service(dataset_id, status)
-      status   = status.present? ? 1 : 2
+      status   = case status
+                 when 'saved' then 1
+                 when 'deleted' then 3
+                 else 2
+                 end
       params   = { dataset: { dataset_attributes: { status: status } } }
       url      = URI.decode("#{ENV['API_DATASET_META_URL']}/#{dataset_id}")
 

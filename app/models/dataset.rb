@@ -54,8 +54,7 @@ class Dataset < ApplicationRecord
               END as type
           FROM datasets, jsonb_each(datasets.data_columns) AS json_data where #{dataset_id}
         )
-        select * from types
-        group by key, type;
+        select * from types;
       SQL
     end
 end

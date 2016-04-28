@@ -10,7 +10,7 @@ class ConnectorSerializer < ActiveModel::Serializer
   end
 
   def data
-    object.data(@options[:query_filter])
+    object.data(@query_filter)
   end
 
   def data_attributes
@@ -18,11 +18,11 @@ class ConnectorSerializer < ActiveModel::Serializer
   end
 
   def uri
-    "#{@options[:uri]['api_gateway_url']}#{@options[:uri]['full_path']}"
+    "#{@uri['api_gateway_url']}#{@uri['full_path']}"
   end
 
   def clone_uri
-    "#{@options[:uri]['api_gateway_url']}/datasets/#{object.id}/clone"
+    "#{@uri['api_gateway_url']}/datasets/#{object.id}/clone"
   end
 
   def body_params
@@ -31,5 +31,11 @@ class ConnectorSerializer < ActiveModel::Serializer
         "dataset_url" => "#{URI.parse(uri)}"
       }
     }
+  end
+
+  def initialize(object, options)
+    super
+    @query_filter = options[:query_filter]
+    @uri          = options[:uri]
   end
 end

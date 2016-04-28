@@ -23,5 +23,13 @@
             "baseUrl": "http://192.168.1.57:3010",
             "path": "/datasets"
         }]
+    },{
+        "url": "/json-datasets/:id",
+        "method": "DELETE",
+        "endpoints": [{
+            "method": "DELETE",
+            "baseUrl": "http://192.168.1.57:3010",
+            "path": "/datasets/:id"
+        }]
     }]
 }

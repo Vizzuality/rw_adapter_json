@@ -3,6 +3,7 @@ module V1
     before_action :set_connector
     before_action :set_query_filter
     before_action :set_uri
+    before_action :set_dataset, only: :destroy
 
     def show
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri
@@ -20,10 +21,24 @@ module V1
       end
     end
 
+    def destroy
+      @dataset.destroy
+      begin
+        render json: { message: 'Dataset deleted' }, status: 200
+        Dataset.notifier(params[:id], 'deleted') if ENV['API_DATASET_META_URL'].present?
+      rescue ActiveRecord::RecordNotDestroyed
+        return render json: @dataset.erors, message: 'Dataset could not be deleted', status: 422
+      end
+    end
+
     private
 
       def set_connector
         @connector = JsonConnector.new(params) if params[:dataset].present? || params[:connector].present?
+      end
+
+      def set_dataset
+        @dataset = Dataset.find(params[:id])
       end
 
       def set_query_filter
@@ -45,7 +60,7 @@ module V1
       end
 
       def notify(status=nil)
-        Dataset.notifier(connector_params['id'], status) if ENV['API_DATASET_META_URL'].present?
+        Dataset.notifier(connector_params[:id], status) if ENV['API_DATASET_META_URL'].present?
       end
 
       def meta_data_params

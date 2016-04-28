@@ -35,7 +35,7 @@ class JsonConnector
     params['data_columns'] = if options['connector_url'].present? && options['data_columns'].blank?
                                params['data'].first
                              else
-                               options['data_columns'] || {}
+                               options['data_columns']
                              end
     Dataset.new(params)
   end

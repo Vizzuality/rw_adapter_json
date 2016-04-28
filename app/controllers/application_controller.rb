@@ -11,12 +11,9 @@ class ApplicationController < ActionController::API
 
     def error(e)
       if request.env["ORIGINAL_FULLPATH"] =~ /^\//
-      error_info = {
-        :error => "internal-server-error",
-        :exception => "#{e.class.name} : #{e.message}",
-      }
-      error_info[:trace] = e.backtrace[0,10] if Rails.env.development?
-      render :json => error_info.to_json, :status => 500
+        error_info = { error: "internal-server-error", exception: "#{e.class.name} : #{e.message}" }
+        error_info[:trace] = e.backtrace[0,10] if Rails.env.development?
+        render json: error_info.to_json, status: 500
       else
         raise e
       end
