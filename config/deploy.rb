@@ -2,7 +2,6 @@ require 'mina/bundler'
 require 'mina/rails'
 require 'mina/git'
 require 'mina/rvm'
-require 'mina/foreman'
 
 set :domain, 'ubuntu@ec2-52-23-163-254.compute-1.amazonaws.com'
 set :deploy_to, '/home/ubuntu/rw_adapter_json'
@@ -58,9 +57,19 @@ task deploy: :environment do
 
     to :launch do
       invoke 'foreman:restart'
-      invoke :'bundle exec sidekiq -C config/sidekiq.yml -e production'
+      queue %[bundle exec sidekiq -C config/sidekiq.yml -e production]
     end
   end
+end
+
+desc "Registering the application services"
+task register_service: :environment do
+  invoke 'service:register'
+end
+
+desc "Restarting the application services"
+task start_service: :environment do
+  invoke 'service:start'
 end
 
 set_default :foreman_app,  lambda { application }
@@ -70,7 +79,7 @@ set_default :foreman_log,  lambda { "#{deploy_to!}/#{shared_path}/log" }
 namespace :foreman do
   desc 'Export the Procfile to Ubuntu upstart scripts'
   task :export do
-    export_cmd = "sudo bundle exec foreman export upstart /etc/init -a #{foreman_app} -u #{foreman_user} -l #{foreman_log}"
+    export_cmd = "rvmsudo bundle exec foreman export upstart /etc/init -a #{foreman_app} -u #{foreman_user} -l #{foreman_log}"
 
     queue %{
       echo "-----> Exporting foreman procfile for #{foreman_app}"
@@ -99,6 +108,24 @@ namespace :foreman do
     queue %{
       echo "-----> Restarting #{foreman_app} services"
       #{echo_cmd %[sudo start #{foreman_app} || sudo restart #{foreman_app}]}
+    }
+  end
+end
+
+namespace :service do
+  desc "Registering the application services"
+  task :register do
+    queue %{
+      echo "-----> Registering #{foreman_app} services"
+      #{echo_cmd %[cd #{deploy_to!}/#{current_path!} ; ./server register-service]}
+    }
+  end
+
+  desc "Restarting the application services"
+  task :start do
+    queue %{
+      echo "-----> Restarting #{foreman_app} services"
+      #{echo_cmd %[cd #{deploy_to!}/#{current_path!} ; ./server start production]}
     }
   end
 end
