@@ -3,10 +3,6 @@ require 'acceptance_helper'
 module V1
   describe 'Datasets Meta', type: :request do
     context 'Create and delete dataset' do
-      fixtures :datasets
-
-      let!(:dataset_id) { Dataset.first.id }
-
       let!(:data_columns) {{
                             "pcpuid": {
                               "type": "string"
@@ -52,6 +48,13 @@ module V1
                       "data_columns": Oj.dump(data_columns),
                       "data": Oj.dump(data)
                     }}}
+
+      let!(:dataset) {
+        dataset = Dataset.create!(data: data, data_columns: data_columns)
+        dataset
+      }
+
+      let!(:dataset_id) { Dataset.first.id }
 
       it 'Allows to create json dataset with data and data_attributes' do
         post '/datasets', params: params

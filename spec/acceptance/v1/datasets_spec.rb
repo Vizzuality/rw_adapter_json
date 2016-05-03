@@ -2,61 +2,71 @@ require 'acceptance_helper'
 
 module V1
   describe 'Datasets', type: :request do
-    fixtures :datasets
-
     context 'For specific dataset' do
-      let!(:params) {{"dataset": {
-                      "connector_type": "json",
-                      "id": "#{dataset_id}",
-                      "connector_provider": "RwJson",
-                      "dataset_attributes": {"name": "Json test api", "format": 0, "data_path": "rows", "attributes_path": "fields"},
-                      "data_attributes": {
-                        "pcpuid": {
-                          "type": "string"
-                        },
-                        "the_geom": {
-                          "type": "geometry"
-                        },
-                        "cartodb_id": {
-                          "type": "number"
-                        },
-                        "the_geom_webmercator": {
-                          "type": "geometry"
-                        }
-                      },
-                      "data": [{
-                        "pcpuid": "350558",
-                        "the_geom": "0101000020E610000000000000786515410000000078651541",
-                        "cartodb_id": 2
-                      },
-                      {
-                        "pcpuid": "350659",
-                        "the_geom": "0101000020E6100000000000000C671541000000000C671541",
-                        "cartodb_id": 3
-                      },
-                      {
-                        "pcpuid": "481347",
-                        "the_geom": "0101000020E6100000000000000C611D41000000000C611D41",
-                        "cartodb_id": 4
-                      },
-                      {
-                        "pcpuid": "120171",
-                        "the_geom": "0101000020E610000000000000B056FD4000000000B056FD40",
-                        "cartodb_id": 5
-                      },
-                      {
-                        "pcpuid": "500001",
-                        "the_geom": "0101000020E610000000000000806EF84000000000806EF840",
-                        "cartodb_id": 1
-                      }]
-                    }}}
+      let!(:data_columns) {{
+                            "pcpuid": {
+                              "type": "string"
+                            },
+                            "the_geom": {
+                              "type": "geometry"
+                            },
+                            "cartodb_id": {
+                              "type": "number"
+                            },
+                            "the_geom_webmercator": {
+                              "type": "geometry"
+                            }
+                          }}
+
+      let!(:data) {[{
+                      "pcpuid": "350558",
+                      "the_geom": "0101000020E610000000000000786515410000000078651541",
+                      "cartodb_id": 2
+                    },
+                    {
+                      "pcpuid": "350659",
+                      "the_geom": "0101000020E6100000000000000C671541000000000C671541",
+                      "cartodb_id": 3
+                    },
+                    {
+                      "pcpuid": "481347",
+                      "the_geom": "0101000020E6100000000000000C611D41000000000C611D41",
+                      "cartodb_id": 4
+                    },
+                    {
+                      "pcpuid": "120171",
+                      "the_geom": "0101000020E610000000000000B056FD4000000000B056FD40",
+                      "cartodb_id": 5
+                    },
+                    {
+                      "pcpuid": "500001",
+                      "the_geom": "0101000020E610000000000000806EF84000000000806EF840",
+                      "cartodb_id": 1
+                  }]}
+
+      let!(:dataset) {
+        dataset = Dataset.create!(data: data, data_columns: data_columns)
+        dataset
+      }
 
       let!(:dataset_id) { Dataset.first.id }
 
+      let!(:params) {{"dataset": {
+                      "id": "#{dataset_id}",
+                      "name": "Json test api",
+                      "data_path": "data",
+                      "attributes_path": "fields",
+                      "provider": "RwJson",
+                      "format": "JSON",
+                      "meta": {
+                        "status": "saved",
+                        "updated_at": "2016-04-29T09:58:20.048Z",
+                        "created_at": "2016-04-29T09:58:19.739Z"
+                      }
+                    }}}
+
       context 'Without params' do
         it 'Allows access cartoDB data' do
-          # raw_response_file = File.new('spec/support/response/#{dataset_id}.json').read
-          # stub_request(:any, /rschumann.cartodb.com/).to_return(body: raw_response_file)
           post "/query/#{dataset_id}", params: params
 
           data = json['data'][0]

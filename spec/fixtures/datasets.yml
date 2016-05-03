@@ -15,56 +15,42 @@ dataset_1:
                   }
                 }'
   data: '[{
-            "pcpuid": "350558",
-            "the_geom": "0101000020E610000000000000786515410000000078651541",
-            "cartodb_id": 2,
-            "the_geom_webmercator": null
-          },
-          {
-            "pcpuid": "350659",
-            "the_geom": "0101000020E6100000000000000C671541000000000C671541",
-            "cartodb_id": 3,
-            "the_geom_webmercator": null
-          },
-          {
-            "pcpuid": "481347",
-            "the_geom": "0101000020E6100000000000000C611D41000000000C611D41",
-            "cartodb_id": 4,
-            "the_geom_webmercator": null
-          },
-          {
-            "pcpuid": "120171",
-            "the_geom": "0101000020E610000000000000B056FD4000000000B056FD40",
-            "cartodb_id": 5,
-            "the_geom_webmercator": null
-          },
-          {
-            "pcpuid": "500001",
-            "the_geom": "0101000020E610000000000000806EF84000000000806EF840",
-            "cartodb_id": 1,
-            "the_geom_webmercator": null
-          }]'
+                      "pcpuid": "350558",
+                      "the_geom": "0101000020E610000000000000786515410000000078651541",
+                      "cartodb_id": 2
+                    },
+                    {
+                      "pcpuid": "350659",
+                      "the_geom": "0101000020E6100000000000000C671541000000000C671541",
+                      "cartodb_id": 3
+                    },
+                    {
+                      "pcpuid": "481347",
+                      "the_geom": "0101000020E6100000000000000C611D41000000000C611D41",
+                      "cartodb_id": 4
+                    },
+                    {
+                      "pcpuid": "120171",
+                      "the_geom": "0101000020E610000000000000B056FD4000000000B056FD40",
+                      "cartodb_id": 5
+                    },
+                    {
+                      "pcpuid": "500001",
+                      "the_geom": "0101000020E610000000000000806EF84000000000806EF840",
+                      "cartodb_id": 1
+                  }]'
   data_horizon: 0
   created_at: '2016-03-01 20:00:00.050118'
   updated_at: '2016-03-01 20:00:00.050118'
 dataset_2:
   data_columns: '{
-                  "iso": {
-                    "type": "string"
-                  },
-                  "name": {
-                    "type": "string"
-                  },
-                  "year": {
+                  "pcpuid": {
                     "type": "string"
                   },
                   "the_geom": {
                     "type": "geometry"
                   },
                   "cartodb_id": {
-                    "type": "number"
-                  },
-                  "population": {
                     "type": "number"
                   },
                   "the_geom_webmercator": {
@@ -74,33 +60,28 @@ dataset_2:
   data: '[{
             "pcpuid": "350558",
             "the_geom": "0101000020E610000000000000786515410000000078651541",
-            "cartodb_id": 2,
-            "the_geom_webmercator": null
+            "cartodb_id": 2
           },
           {
             "pcpuid": "350659",
             "the_geom": "0101000020E6100000000000000C671541000000000C671541",
-            "cartodb_id": 3,
-            "the_geom_webmercator": null
+            "cartodb_id": 3
           },
           {
             "pcpuid": "481347",
             "the_geom": "0101000020E6100000000000000C611D41000000000C611D41",
-            "cartodb_id": 4,
-            "the_geom_webmercator": null
+            "cartodb_id": 4
           },
           {
             "pcpuid": "120171",
             "the_geom": "0101000020E610000000000000B056FD4000000000B056FD40",
-            "cartodb_id": 5,
-            "the_geom_webmercator": null
+            "cartodb_id": 5
           },
           {
             "pcpuid": "500001",
             "the_geom": "0101000020E610000000000000806EF84000000000806EF840",
-            "cartodb_id": 1,
-            "the_geom_webmercator": null
-          }]'
+            "cartodb_id": 1
+        }]'
   data_horizon: 1
   created_at: '2016-03-02 20:00:00.050118'
   updated_at: '2016-03-02 20:00:00.050118'

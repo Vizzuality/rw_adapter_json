@@ -57,7 +57,7 @@ task deploy: :environment do
 
     to :launch do
       invoke 'foreman:restart'
-      queue %[bundle exec sidekiq -C config/sidekiq.yml -e production]
+      invoke 'service:start'
     end
   end
 end

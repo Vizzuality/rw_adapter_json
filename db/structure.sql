@@ -79,8 +79,8 @@ CREATE TABLE ar_internal_metadata (
 
 CREATE TABLE datasets (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
-    data_columns jsonb DEFAULT '{}'::jsonb,
-    data jsonb DEFAULT '[]'::jsonb,
+    data_columns jsonb DEFAULT '"{}"'::jsonb,
+    data jsonb DEFAULT '"[]"'::jsonb,
     data_horizon integer DEFAULT 0,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
