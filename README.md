@@ -1,6 +1,6 @@
 # Resource Watch JSON Service
 
-[![Build Status](https://travis-ci.org/Vizzuality/rw_adapter_json.svg?branch=develop)](https://travis-ci.org/Vizzuality/rw_adapter_json) [![Code Climate](https://codeclimate.com/github/Vizzuality/rw_adapter_json/badges/gpa.svg)](https://codeclimate.com/github/Vizzuality/rw_adapter_json) [![Test Coverage](https://codeclimate.com/github/Vizzuality/rw_adapter_json/badges/coverage.svg)](https://codeclimate.com/github/Vizzuality/rw_adapter_json/coverage)
+[![Build Status](https://travis-ci.org/resource-watch/rw_adapter_json.svg?branch=develop)](https://travis-ci.org/resource-watch/rw_adapter_json) [![Code Climate](https://codeclimate.com/github/resource-watch/rw_adapter_json/badges/gpa.svg)](https://codeclimate.com/github/resource-watch/rw_adapter_json) [![Test Coverage](https://codeclimate.com/github/resource-watch/rw_adapter_json/badges/coverage.svg)](https://codeclimate.com/github/resource-watch/rw_adapter_json/coverage)
 
 TODO: Write a project description
 
@@ -22,7 +22,6 @@ Install project dependencies:
 ## Usage
 
 First time execute:
-  Depends on [RW Database Maintenance](https://github.com/Vizzuality/rw_database/):
 
     cp config/database.yml.sample config/database.yml
 
@@ -49,5 +48,5 @@ To run application:
 
 ### BEFORE CREATING A PULL REQUEST
 
-  Please check all of [these points](https://github.com/Vizzuality/rw_adapter_json/blob/master/CONTRIBUTING.md).
+  Please check all of [these points](https://github.com/resource-watch/rw_adapter_json/blob/master/CONTRIBUTING.md).
 
