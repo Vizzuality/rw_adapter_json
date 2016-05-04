@@ -1,0 +1,35 @@
+{
+    "id": "rw_adapter_json_v1",
+    "name": "RW Adapter Json v1",
+    "urls": [{
+        "url": "/query/:dataset",
+        "method": "GET",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+            "provider": "RwJson"
+        },
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "https://rw-adapter-json.herpkuapp.com",
+            "path": "/query/:dataset",
+            "data": ["dataset"]
+        }]
+    },{
+        "url": "/json-datasets",
+        "method": "POST",
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "https://rw-adapter-json.herpkuapp.com",
+            "path": "/datasets"
+        }]
+    },{
+        "url": "/json-datasets/:id",
+        "method": "DELETE",
+        "endpoints": [{
+            "method": "DELETE",
+            "baseUrl": "https://rw-adapter-json.herpkuapp.com",
+            "path": "/datasets/:id"
+        }]
+    }]
+}
