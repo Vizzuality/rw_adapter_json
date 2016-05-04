@@ -34,6 +34,8 @@ rackup      DefaultRackup
 port        ENV['PORT']     || 3010
 environment ENV['RACK_ENV'] || 'development'
 
+daemonize true
+
 on_worker_boot do
   ActiveRecord::Base.establish_connection
 end
