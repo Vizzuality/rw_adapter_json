@@ -39,11 +39,11 @@ paths:
           type: string
         - name: filter
           in: query
-          description: WHERE clausule of the query to filter data. (<column_name> <operator> <value> <and/or> ...). <br>Operators->  == (equal) <= (less than or equal) >= (greater than or equal) >> (greather than) << (less than) >< (between);
+          description: WHERE clausule of the query to filter data. (<column_name> <operator> <value> <and/or> ...). <br>Operators->  == (equal) <= (less than or equal) >= (greater than or equal) >> (greather than) << (less than) >< (between - sample pcpuid><'500001'..'9506590');
           type: string
         - name: filter_not
           in: query
-          description: WHERE clausule denied of the query to filter data. (<column_name> <operator> <value> <and/or> ...). <br>Operators->  == (equal) <= (less than or equal) >= (greater than or equal) >> (greather than) << (less than) >< (between);
+          description: WHERE clausule denied of the query to filter data. (<column_name> <operator> <value> <and/or> ...). <br>Operators->  == (equal) <= (less than or equal) >= (greater than or equal) >> (greather than) << (less than) >< (between - sample pcpuid><'500001'..'9506590');
           type: string
         - name: dataset
           in: body
