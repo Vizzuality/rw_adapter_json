@@ -11,7 +11,7 @@
         },
         "endpoints": [{
             "method": "POST",
-            "baseUrl": "http://192.168.1.57:3010",
+            "baseUrl": "http://192.168.1.81:3010",
             "path": "/query/:dataset",
             "data": ["dataset"]
         }]
@@ -20,7 +20,7 @@
         "method": "POST",
         "endpoints": [{
             "method": "POST",
-            "baseUrl": "http://192.168.1.57:3010",
+            "baseUrl": "http://192.168.1.81:3010",
             "path": "/datasets"
         }]
     },{
@@ -28,7 +28,7 @@
         "method": "DELETE",
         "endpoints": [{
             "method": "DELETE",
-            "baseUrl": "http://192.168.1.57:3010",
+            "baseUrl": "http://192.168.1.81:3010",
             "path": "/datasets/:id"
         }]
     }]
