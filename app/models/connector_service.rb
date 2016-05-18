@@ -5,14 +5,14 @@ require 'oj'
 class ConnectorService
   class << self
     def connect_to_dataset_service(dataset_id, status)
-      status   = case status
-                 when 'saved' then 1
-                 when 'deleted' then 3
-                 else 2
-                 end
+      status = case status
+               when 'saved' then 1
+               when 'deleted' then 3
+               else 2
+               end
 
-      params   = { dataset: { dataset_attributes: { status: status } } }
-      url      = URI.decode("#{ENV['API_DATASET_META_URL']}/#{dataset_id}")
+      params = { dataset: { dataset_attributes: { status: status } } }
+      url    = URI.decode("#{ENV['API_DATASET_META_URL']}/#{dataset_id}")
 
       @c = Curl::Easy.http_put(URI.escape(url), Oj.dump(params)) do |curl|
         curl.headers['Accept']       = 'application/json'
