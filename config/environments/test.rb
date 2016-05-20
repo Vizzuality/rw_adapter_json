@@ -37,6 +37,13 @@ Rails.application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
-  # Raises error for missing translations
-  # config.action_view.raise_on_missing_translations = true
+  Bullet.enable = true
+  Bullet.bullet_logger = true
+  Bullet.raise = true
+
+  config.after_initialize do
+    # Set Time.now to September 1, 2015 12:00:00 AM (at this instant)
+    t = Time.local(2015, 6, 1, 12, 0, 0, 0)
+    Timecop.travel(t)
+  end
 end

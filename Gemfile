@@ -33,6 +33,7 @@ group :test do
   gem 'timecop'
   gem 'codeclimate-test-reporter', require: nil
   gem 'database_cleaner'
+  gem 'bullet'
 end
 
 # Server
