@@ -66,26 +66,38 @@ module V1
                     }}}
 
       context 'Without params' do
-        it 'Allows access cartoDB data' do
+        it 'Allows access cartoDB data with default limit 1' do
           post "/query/#{dataset_id}", params: params
 
           data = json['data'][0]
 
           expect(status).to eq(200)
-          expect(data['cartodb_id']).not_to be_nil
-          expect(data['pcpuid']).not_to     be_nil
-          expect(data['the_geom']).to       be_present
+          expect(data['cartodb_id']).not_to  be_nil
+          expect(data['pcpuid']).not_to      be_nil
+          expect(data['the_geom']).to        be_present
+          expect(json['data_attributes']).to be_present
+          expect(json['data'].length).to     eq(1)
         end
       end
 
       context 'With params' do
+        it 'Allows access all available cartoDB data with limit all' do
+          post "/query/#{dataset_id}?limit=all", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data.length).to eq(5)
+        end
+
         it 'Allows access cartoDB data with order ASC' do
           post "/query/#{dataset_id}?order[]=cartodb_id", params: params
 
           data = json['data'][0]
 
           expect(status).to eq(200)
-          expect(data['cartodb_id']).to eq('1')
+          expect(data['cartodb_id']).to  eq('1')
+          expect(json['data'].length).to eq(1)
         end
 
         it 'Allows access cartoDB data with order DESC' do
@@ -97,8 +109,8 @@ module V1
           expect(data['cartodb_id']).to eq('5')
         end
 
-        it 'Allows access cartoDB data details with select and order' do
-          post "/query/#{dataset_id}?select[]=cartodb_id,pcpuid&order[]=pcpuid", params: params
+        it 'Allows access cartoDB data details with select and order wit data limit 2' do
+          post "/query/#{dataset_id}?select[]=cartodb_id,pcpuid&order[]=pcpuid&limit=2", params: params
 
           data = json['data'][0]
 
@@ -106,10 +118,11 @@ module V1
           expect(data['cartodb_id']).to   eq('5')
           expect(data['pcpuid']).not_to   be_nil
           expect(data['the_geom']).not_to be_present
+          expect(json['data'].length).to  eq(2)
         end
 
         it 'Allows access cartoDB data details with select, filter and order DESC' do
-          post "/query/#{dataset_id}?select[]=cartodb_id,pcpuid&filter=(cartodb_id==1,2,4,5 <and> pcpuid><'350558'..'9506590')&order[]=-pcpuid", params: params
+          post "/query/#{dataset_id}?select[]=cartodb_id,pcpuid&filter=(cartodb_id==1,2,4,5 <and> pcpuid><'350558'..'9506590')&order[]=-pcpuid&limit=2", params: params
 
           data = json['data'][0]
 
@@ -117,6 +130,7 @@ module V1
           expect(data['cartodb_id']).to   eq('1')
           expect(data['pcpuid']).to       eq('500001')
           expect(data['the_geom']).not_to be_present
+          expect(json['data'].length).to eq(2)
         end
 
         it 'Allows access cartoDB data details with select, filter_not and order' do
@@ -152,6 +166,7 @@ module V1
           expect(data[0]['pcpuid']).not_to   be_nil
           expect(data[0]['the_geom']).not_to be_nil
           expect(data[1]['cartodb_id']).to   eq('2')
+          expect(json['data'].length).to     eq(2)
         end
 
         it 'Allows access cartoDB data details for all filters without select and order' do
