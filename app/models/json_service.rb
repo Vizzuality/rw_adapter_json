@@ -39,6 +39,8 @@ class JsonService
       # filter += Filters::GroupBy.apply_group_by(@aggr_by) if @aggr_func.present? && @aggr_by.present?
       # ORDER
       filter += Filters::Order.apply_order(@order) if @order.present?
+      # Limit
+      filter += Filters::Limit.apply_limit(@limit) if @limit.present? && !@limit.include?('all')
       Dataset.execute_data_query(filter).to_ary
     end
 end
