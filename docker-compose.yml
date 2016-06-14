@@ -1,0 +1,11 @@
+prod:
+  image: vizzuality/rw_adapter_json:1.0.0
+  command: start
+  ports:
+    - '3010'
+  env_file: prod.env
+
+  log_driver: 'gelf'
+  restart: always
+  log_opt:
+    gelf-address: 'udp://172.31.40.76:12201'

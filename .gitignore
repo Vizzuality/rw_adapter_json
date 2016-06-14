@@ -12,7 +12,6 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
-config/database.yml
 
 # Ignore Byebug command history file.
 .byebug_history
@@ -28,3 +27,5 @@ spec/.DS_Store
 
 # Ignore environment variables
 /.env.*
+/test.env
+/dev.env

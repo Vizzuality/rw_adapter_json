@@ -1,9 +1,22 @@
 #!/bin/bash
 set -e
-ps -fea
 
-if [ "$1" = 'run' ]; then
-  bin/rails server --port 3010 --binding 0.0.0.0
-else
-    exec "$@"
-fi
+case "$1" in
+    develop)
+        echo "Running Development Server"
+        rm -f tmp/pids/puma.pid
+        exec ./server start develop
+        ;;
+    test)
+        echo "Running Test"
+        rm -f tmp/pids/puma.pid
+        exec rspec
+        ;;
+    start)
+        echo "Running Start"
+        rm -f tmp/pids/puma.pid
+        exec ./server start production
+        ;;
+    *)
+        exec "$@"
+esac

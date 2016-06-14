@@ -7,9 +7,6 @@ case "$1" in
         then
           case "$2" in
             develop)
-              echo "Startting server..."
-              bundle exec puma -C config/puma.rb
-              echo "Server running on port 3010 ;)!"
               echo "Starting sidekiq..."
               bundle exec sidekiq -C config/sidekiq.yml
               echo "Register RW Json Adapter"
@@ -18,13 +15,16 @@ case "$1" in
                    --header 'cache-control: no-cache' \
                    --header 'content-type: application/json' \
                    --data "$(cat lib/files/service_develop.json)"
+              echo "Startting server..."
+              bundle exec puma -C config/puma.rb
+              echo "Server running on port 3010 ;)!"
               ;;
             production)
+              echo "Starting sidekiq..."
+              bundle exec sidekiq -e production -C config/sidekiq.yml
               echo "Startting server..."
               bundle exec puma -e production -C config/puma.rb
               echo "Server running on port 3010 ;)!"
-              echo "Starting sidekiq..."
-              bundle exec sidekiq -e production -C config/sidekiq.yml
               ;;
             *)
               echo "Usage: server start {develop|production}" >&2

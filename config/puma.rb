@@ -9,7 +9,7 @@ environment ENV['RACK_ENV'] || 'development'
 
 preload_app!
 
-daemonize true
+# daemonize true
 
 # Set master PID and state locations
 pidfile    'tmp/pids/puma.pid'
