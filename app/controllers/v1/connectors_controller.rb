@@ -1,9 +1,9 @@
 module V1
   class ConnectorsController < ApplicationController
-    before_action :set_connector
-    before_action :set_query_filter
-    before_action :set_uri
-    before_action :set_dataset, only: :destroy
+    before_action :set_connector,    except: :info
+    before_action :set_query_filter, except: :info
+    before_action :set_uri,          except: :info
+    before_action :set_dataset,      only: :destroy
 
     def show
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri
@@ -29,6 +29,11 @@ module V1
       rescue ActiveRecord::RecordNotDestroyed
         return render json: @dataset.erors, message: 'Dataset could not be deleted', status: 422
       end
+    end
+
+    def info
+      @docs = Oj.load(File.read("lib/files/service_#{ENV['RAILS_ENV']}.json"))
+      render json: @docs
     end
 
     private

@@ -9,12 +9,6 @@ case "$1" in
             develop)
               echo "Starting sidekiq..."
               bundle exec sidekiq -C config/sidekiq.yml
-              echo "Register RW Json Adapter"
-              curl --request POST \
-                   --url http://192.168.99.100:8000/gateway/service \
-                   --header 'cache-control: no-cache' \
-                   --header 'content-type: application/json' \
-                   --data "$(cat lib/files/service_develop.json)"
               echo "Startting server..."
               bundle exec puma -C config/puma.rb
               echo "Server running on port 3010 ;)!"
