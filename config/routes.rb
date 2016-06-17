@@ -3,5 +3,6 @@ Rails.application.routes.draw do
     post   'query/:id',    to: 'connectors#show'
     post   'datasets',     to: 'connectors#create'
     delete 'datasets/:id', to: 'connectors#destroy'
+    get    'info',         to: 'connectors#info'
   end
 end

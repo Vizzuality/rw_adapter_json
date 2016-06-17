@@ -1,7 +1,19 @@
 web:
   build: .
-  command: run
-  ports:
-    - "3010:3010"
+  command: develop
   volumes:
     - .:/rw_adapter_json
+  ports:
+    - '3010:3010'
+  links:
+    - postgres
+    - redis
+  env_file: dev.env
+
+postgres:
+  image: postgres
+  container_name: postgres_rw_adapter_json
+
+redis:
+  image: redis
+  container_name: redis_rw_adapter_json

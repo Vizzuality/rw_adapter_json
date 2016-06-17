@@ -1,0 +1,11 @@
+test:
+  build: .
+  command: test
+  volumes:
+    - .:/rw_adapter_json
+  links:
+    - postgres
+  env_file: test.env
+
+postgres:
+  image: postgres
