@@ -11,7 +11,6 @@ case "$1" in
 
         export SECRET_KEY_BASE=$(rake secret)
 
-        rm -f tmp/pids/puma.pid
         exec ./server start develop
         ;;
     test)
@@ -23,7 +22,6 @@ case "$1" in
 
         export SECRET_KEY_BASE=$(rake secret)
 
-        rm -f tmp/pids/puma.pid
         exec rspec
         ;;
     start)
@@ -35,7 +33,6 @@ case "$1" in
 
         export SECRET_KEY_BASE=$(rake secret)
 
-        rm -f tmp/pids/puma.pid
         exec ./server start production
         ;;
     *)

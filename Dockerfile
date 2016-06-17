@@ -1,7 +1,7 @@
 FROM ruby:2.3.0
 MAINTAINER Sebastian Schkudlara "sebastian.schkudlara@vizzuality.com"
 
-RUN apt-get update -qq && apt-get install -y build-essential nodejs npm nodejs-legacy postgresql-client libpq-dev libxml2-dev libxslt1-dev
+RUN apt-get update -qq && apt-get install -y build-essential postgresql-client libpq-dev libxml2-dev libxslt1-dev
 
 RUN mkdir /rw_adapter_json
 
