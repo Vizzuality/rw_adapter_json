@@ -24,7 +24,7 @@ module V1
     def destroy
       @dataset.destroy
       begin
-        Dataset.notifier(params[:id], 'deleted') if ENV['API_DATASET_META_URL'].present?
+        Dataset.notifier(params[:id], 'deleted') if ServiceSetting.auth_token.present?
         render json: { message: 'Dataset deleted' }, status: 200
       rescue ActiveRecord::RecordNotDestroyed
         return render json: @dataset.erors, message: 'Dataset could not be deleted', status: 422
@@ -73,7 +73,7 @@ module V1
       end
 
       def notify(status=nil)
-        Dataset.notifier(connector_params[:id], status) if ENV['API_DATASET_META_URL'].present?
+        Dataset.notifier(connector_params[:id], status) if ServiceSetting.auth_token.present?
       end
 
       def meta_data_params
