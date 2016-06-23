@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '2.3.0'
 
-gem 'rails', '>= 5.0.0.beta4', '< 5.1'
+gem 'rails', '>= 5.0.0.rc1', '< 5.1'
 
 gem 'pg', '~> 0.18'
 
@@ -33,6 +33,7 @@ group :test do
   gem 'timecop'
   gem 'codeclimate-test-reporter', require: nil
   gem 'database_cleaner'
+  gem 'bullet'
 end
 
 # Server
@@ -45,4 +46,4 @@ gem 'rack-cors'
 gem 'rack-attack'
 gem 'bcrypt'
 gem 'sidekiq'
-gem 'newrelic_rpm'
+# gem 'newrelic_rpm'

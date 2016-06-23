@@ -1,9 +1,9 @@
 module V1
   class ConnectorsController < ApplicationController
-    before_action :set_connector
-    before_action :set_query_filter
-    before_action :set_uri
-    before_action :set_dataset, only: :destroy
+    before_action :set_connector,    except: :info
+    before_action :set_query_filter, except: :info
+    before_action :set_uri,          except: :info
+    before_action :set_dataset,      only: :destroy
 
     def show
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri
@@ -24,10 +24,20 @@ module V1
     def destroy
       @dataset.destroy
       begin
-        Dataset.notifier(params[:id], 'deleted') if ENV['API_DATASET_META_URL'].present?
+        Dataset.notifier(params[:id], 'deleted') if ServiceSetting.auth_token.present?
         render json: { message: 'Dataset deleted' }, status: 200
       rescue ActiveRecord::RecordNotDestroyed
         return render json: @dataset.erors, message: 'Dataset could not be deleted', status: 422
+      end
+    end
+
+    def info
+      @service = ServiceSetting.save_gateway_settings(params)
+      if @service
+        @docs = Oj.load(File.read("lib/files/service_#{ENV['RAILS_ENV']}.json"))
+        render json: @docs
+      else
+        render json: { success: false, message: 'Missing url and token params' }, status: 422
       end
     end
 
@@ -43,14 +53,17 @@ module V1
 
       def set_query_filter
         @query_filter = {}
-        @query_filter['select']     = params[:select] if params[:select].present?
-        @query_filter['order']      = params[:order]  if params[:order].present?
+        @query_filter['select']     = params[:select]     if params[:select].present?
+        @query_filter['order']      = params[:order]      if params[:order].present?
         # For Filter
         @query_filter['filter']     = params[:filter]     if params[:filter].present?
         @query_filter['filter_not'] = params[:filter_not] if params[:filter_not].present?
         # For group
-        @query_filter['aggr_by']    = params[:aggr_by]   if params[:aggr_by].present?
-        @query_filter['aggr_func']  = params[:aggr_func] if params[:aggr_func].present?
+        @query_filter['aggr_by']    = params[:aggr_by]    if params[:aggr_by].present?
+        @query_filter['aggr_func']  = params[:aggr_func]  if params[:aggr_func].present?
+        @query_filter['group_by']   = params[:group_by]   if params[:group_by].present?
+        # Limit
+        @query_filter['limit']      = params[:limit]      if params[:limit].present?
       end
 
       def set_uri
@@ -60,7 +73,7 @@ module V1
       end
 
       def notify(status=nil)
-        Dataset.notifier(connector_params[:id], status) if ENV['API_DATASET_META_URL'].present?
+        Dataset.notifier(connector_params[:id], status) if ServiceSetting.auth_token.present?
       end
 
       def meta_data_params

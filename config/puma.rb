@@ -9,11 +9,11 @@ environment ENV['RACK_ENV'] || 'development'
 
 preload_app!
 
-daemonize true
+# daemonize true
 
 # Set master PID and state locations
-pidfile    'tmp/pids/puma.pid'
-state_path 'tmp/pids/puma.state'
+# pidfile    'tmp/pids/puma.pid'
+# state_path 'tmp/pids/puma.state'
 
 on_worker_boot do
   ActiveRecord::Base.establish_connection

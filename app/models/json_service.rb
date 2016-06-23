@@ -28,7 +28,7 @@ class JsonService
 
     def options_query
       # SELECT
-      filter = Filters::Select.apply_select(@id, @select)
+      filter = Filters::Select.apply_select(@id, @select, @aggr_func, @aggr_by)
       # WHERE
       filter += ' WHERE ' if @not_filter.present? || @filter.present?
       filter += Filters::FilterWhere.apply_where(@filter, nil) if @filter.present?
@@ -36,9 +36,16 @@ class JsonService
       filter += ' AND' if @not_filter.present? && @filter.present?
       filter += Filters::FilterWhere.apply_where(nil, @not_filter) if @not_filter.present?
       # # GROUP BY
-      # filter += Filters::GroupBy.apply_group_by(@aggr_by) if @aggr_func.present? && @aggr_by.present?
+      filter += Filters::GroupBy.apply_group_by(@group) if @group.present?
       # ORDER
       filter += Filters::Order.apply_order(@order) if @order.present?
-      Dataset.execute_data_query(filter).to_ary
+      # LIMIT
+      filter += Filters::Limit.apply_limit(@limit) if @limit.present? && !@limit.include?('all')
+      begin
+        Dataset.execute_data_query(filter).to_ary
+      rescue => e
+        error = Oj.dump({ error: [e.cause.to_s.split(' ').join(' ')] })
+        Oj.load(error)
+      end
     end
 end
