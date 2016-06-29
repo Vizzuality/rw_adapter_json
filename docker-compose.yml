@@ -13,13 +13,18 @@ prod:
     gelf-address: ${GELF_ADDRESS}
 
 worker:
-  build: .
+  image: vizzuality/rw_adapter_json_worker:1.0.0${STAGING}
   command: bundle exec sidekiq -e production -C config/sidekiq.yml
   volumes_from:
     - prod
   links:
     - redis
   env_file: prod.env
+
+  log_driver: 'gelf'
+  restart: always
+  log_opt:
+    gelf-address: ${GELF_ADDRESS}
 
 redis:
   image: redis
