@@ -13,7 +13,7 @@ prod:
     gelf-address: ${GELF_ADDRESS}
 
 worker:
-  image: vizzuality/rw_adapter_json_worker:1.0.0${STAGING}
+  image: vizzuality/rw_adapter_json:1.0.0${STAGING}
   command: bundle exec sidekiq -e production -C config/sidekiq.yml
   volumes_from:
     - prod
