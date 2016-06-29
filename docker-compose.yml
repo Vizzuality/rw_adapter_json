@@ -12,6 +12,15 @@ prod:
   log_opt:
     gelf-address: ${GELF_ADDRESS}
 
+worker:
+  build: .
+  command: bundle exec sidekiq -e production -C config/sidekiq.yml
+  volumes_from:
+    - prod
+  links:
+    - redis
+  env_file: prod.env
+
 redis:
   image: redis
   container_name: redis_rw_adapter_json

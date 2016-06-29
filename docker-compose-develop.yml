@@ -10,6 +10,16 @@ web:
     - redis
   env_file: dev.env
 
+worker:
+  build: .
+  command: bundle exec puma -C config/puma.rb
+  volumes_from:
+    - web
+  links:
+    - postgres
+    - redis
+  env_file: dev.env
+
 postgres:
   image: postgres
   container_name: postgres_rw_adapter_json

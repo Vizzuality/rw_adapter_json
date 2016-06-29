@@ -1,9 +1,11 @@
 FROM ruby:2.3.0
 MAINTAINER Sebastian Schkudlara "sebastian.schkudlara@vizzuality.com"
 
-RUN apt-get update -qq && apt-get install -y build-essential postgresql-client libpq-dev libxml2-dev libxslt1-dev
+RUN apt-get update && apt-get install -y build-essential
 
 RUN mkdir /rw_adapter_json
+
+RUN gem install bundler --no-ri --no-rdoc
 
 WORKDIR /rw_adapter_json
 COPY Gemfile Gemfile
