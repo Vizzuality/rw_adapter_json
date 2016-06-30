@@ -1,7 +1,7 @@
 FROM ruby:2.3.0
 MAINTAINER Sebastian Schkudlara "sebastian.schkudlara@vizzuality.com"
 
-RUN apt-get update && apt-get install -y build-essential
+RUN apt-get update -qq && apt-get install -y build-essential
 
 RUN mkdir /rw_adapter_json
 
