@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '2.3.0'
 
-gem 'rails', '>= 5.0.0.rc1', '< 5.1'
+gem 'rails', '>= 5.0.0.rc2', '< 5.1'
 
 gem 'pg', '~> 0.18'
 
@@ -17,6 +17,7 @@ group :development, :test do
   gem 'faker'
   gem 'rubocop', require: false
   gem 'rspec-activejob'
+  gem 'dotenv-rails'
 end
 
 group :development do
@@ -38,12 +39,11 @@ end
 
 # Server
 gem 'puma'
-gem 'foreman'
-gem 'dotenv-rails'
+# gem 'foreman'
 gem 'redis', '~> 3.2'
 gem 'redis-namespace'
 gem 'rack-cors'
 gem 'rack-attack'
-gem 'bcrypt'
+# gem 'bcrypt'
 gem 'sidekiq'
-# gem 'newrelic_rpm'
+gem 'newrelic_rpm'
