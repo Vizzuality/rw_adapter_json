@@ -8,7 +8,7 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-            "provider": "RwJson"
+            "provider": "rwjson"
         },
         "endpoints": [{
             "method": "POST",
