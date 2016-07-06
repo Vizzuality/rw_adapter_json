@@ -1,10 +1,6 @@
 # Resource Watch JSON Service
 
-<<<<<<< HEAD
 [![Build Status](https://travis-ci.org/resource-watch/rw_adapter_json.svg?branch=master)](https://travis-ci.org/resource-watch/rw_adapter_json) [![Code Climate](https://codeclimate.com/github/Vizzuality/rw_adapter_json/badges/gpa.svg)](https://codeclimate.com/github/Vizzuality/rw_adapter_json) [![Test Coverage](https://codeclimate.com/github/Vizzuality/rw_adapter_json/badges/coverage.svg)](https://codeclimate.com/github/Vizzuality/rw_adapter_json/coverage)
-=======
-[![Build Status](https://travis-ci.org/resource-watch/rw_adapter_json.svg?branch=staging)](https://travis-ci.org/resource-watch/rw_adapter_json) [![Code Climate](https://codeclimate.com/github/Vizzuality/rw_adapter_json/badges/gpa.svg)](https://codeclimate.com/github/Vizzuality/rw_adapter_json) [![Test Coverage](https://codeclimate.com/github/Vizzuality/rw_adapter_json/badges/coverage.svg)](https://codeclimate.com/github/Vizzuality/rw_adapter_json/coverage)
->>>>>>> staging
 
 TODO: Write a project description
 
@@ -53,4 +49,3 @@ To run application:
 ### BEFORE CREATING A PULL REQUEST
 
   Please check all of [these points](https://github.com/resource-watch/rw_adapter_json/blob/master/CONTRIBUTING.md).
-
