@@ -39,11 +39,9 @@ end
 
 # Server
 gem 'puma'
-# gem 'foreman'
 gem 'redis', '~> 3.2'
 gem 'redis-namespace'
 gem 'rack-cors'
 gem 'rack-attack'
-# gem 'bcrypt'
 gem 'sidekiq'
 gem 'newrelic_rpm'

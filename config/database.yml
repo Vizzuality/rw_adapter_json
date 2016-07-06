@@ -53,8 +53,13 @@ test:
 #     url: <%= ENV['DATABASE_URL'] %>
 #
 
-production:
+staging:
   <<: *default
   database: json_adapter_production
+  password: <%= ENV['POSTGRES_PASS'] %>
+
+production:
+  <<: *default
+  database: json_adapter
   password: <%= ENV['POSTGRES_PASS'] %>
 

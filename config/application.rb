@@ -13,8 +13,9 @@ require "action_controller/railtie"
 # require "rails/test_unit/railtie"
 
 # Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
+# you've limited to :test, :development, :staging, or :production.
 Bundler.require(*Rails.groups)
+GC::Profiler.enable
 
 module RwAdapterJson
   class Application < Rails::Application
