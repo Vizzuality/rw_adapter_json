@@ -13,6 +13,13 @@ case "$1" in
               bundle exec puma -C config/puma.rb
               echo "Server running on port 3010 ;)!"
               ;;
+            staging)
+              echo "Starting sidekiq..."
+              bundle exec sidekiq -e staging -C config/sidekiq.yml
+              echo "Startting server..."
+              bundle exec puma -e staging -C config/puma.rb
+              echo "Server running on port 3010 ;)!"
+              ;;
             production)
               echo "Starting sidekiq..."
               bundle exec sidekiq -e production -C config/sidekiq.yml
