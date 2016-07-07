@@ -29,3 +29,4 @@ spec/.DS_Store
 /.env.*
 /test.env
 /dev.env
+Dockerfile
