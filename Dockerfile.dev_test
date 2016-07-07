@@ -1,7 +1,7 @@
 FROM ruby:2.3.0-alpine
 MAINTAINER Sebastian Schkudlara "sebastian.schkudlara@vizzuality.com"
 
-ENV BUILD_PACKAGES bash curl-dev build-base build-base libxml2-dev libxslt-dev postgresql-dev
+ENV BUILD_PACKAGES bash curl-dev build-base libxml2-dev libxslt-dev postgresql-dev
 
 # Update and install all of the required packages.
 # At the end, remove the apk cache
