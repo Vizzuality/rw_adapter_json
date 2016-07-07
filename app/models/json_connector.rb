@@ -32,7 +32,7 @@ class JsonConnector
                        Oj.load(options['data'])
                      end
     params['id'] = options['id']
-    params['data_columns'] = if options['connector_url'].present? && options['data_columns'].blank?
+    params['data_columns'] = if params['data'].present? && options['data_columns'].blank?
                                params['data'].first
                              else
                                Oj.load(options['data_columns'])
