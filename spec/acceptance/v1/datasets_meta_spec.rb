@@ -49,6 +49,11 @@ module V1
                       "data": Oj.dump(data)
                     }}}
 
+      let!(:external_params) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
+                                             "connector_url": "http://api.resourcewatch.org:81/query/3db3a4cd-f654-41bd-b26b-8c865f02f933?limit=10",
+                                             "data_path": "data"
+                             }}}
+
       let!(:dataset) {
         dataset = Dataset.create!(data: data, data_columns: data_columns)
         dataset
@@ -56,8 +61,15 @@ module V1
 
       let!(:dataset_id) { Dataset.first.id }
 
-      it 'Allows to create json dataset with data and data_attributes' do
+      it 'Allows to create json dataset with data and fields' do
         post '/datasets', params: params
+
+        expect(status).to eq(201)
+        expect(json['message']).to eq('Dataset created')
+      end
+
+      it 'Allows to create json dataset from external json' do
+        post '/datasets', params: external_params
 
         expect(status).to eq(201)
         expect(json['message']).to eq('Dataset created')

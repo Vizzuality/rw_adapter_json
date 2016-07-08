@@ -81,13 +81,13 @@ module V1
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data.length).to             eq(3)
-          expect(json['data_attributes']).to be_present
-          expect(data[0]['population']).to   eq(2500)
-          expect(data[0]['year']).to         eq('2011')
-          expect(data[1]['population']).to   eq(500)
-          expect(data[1]['year']).to         eq('2013')
-          expect(data[2]['population']).to   eq(1500) # 3x500
+          expect(data.length).to           eq(3)
+          expect(json['fields']).to        be_present
+          expect(data[0]['population']).to eq(2500)
+          expect(data[0]['year']).to       eq('2011')
+          expect(data[1]['population']).to eq(500)
+          expect(data[1]['year']).to       eq('2013')
+          expect(data[2]['population']).to eq(1500) # 3x500
         end
 
         it 'Allows aggregate JSON data by one max attribute and group by one attribute' do

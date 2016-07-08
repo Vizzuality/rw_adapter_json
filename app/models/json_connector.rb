@@ -1,8 +1,9 @@
 require 'oj'
 
 class JsonConnector
+  extend ActiveModel::Naming
   include ActiveModel::Serialization
-  attr_reader :id, :name, :provider, :format, :data_path, :attributes_path
+  attr_reader :id
 
   def initialize(params)
     @dataset_params = params[:dataset] || params[:connector]
@@ -32,7 +33,7 @@ class JsonConnector
                        Oj.load(options['data'])
                      end
     params['id'] = options['id']
-    params['data_columns'] = if options['connector_url'].present? && options['data_columns'].blank?
+    params['data_columns'] = if params['data'].present? && options['data_columns'].blank?
                                params['data'].first
                              else
                                Oj.load(options['data_columns'])

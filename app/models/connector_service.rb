@@ -22,6 +22,7 @@ class ConnectorService
     end
 
     def connect_to_provider(connector_url, data_path)
+      data_path = data_path.to_i if integer? data_path
       url = URI.decode(connector_url)
 
       @c = Curl::Easy.http_get(URI.escape(url)) do |curl|
@@ -30,6 +31,10 @@ class ConnectorService
       end
 
       Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))[data_path] || Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))
+    end
+
+    def integer?(str)
+      /\A[+-]?\d+\z/ === str
     end
   end
 end
