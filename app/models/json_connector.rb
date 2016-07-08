@@ -1,8 +1,9 @@
 require 'oj'
 
 class JsonConnector
+  extend ActiveModel::Naming
   include ActiveModel::Serialization
-  attr_reader :id, :name, :provider, :format, :data_path, :attributes_path
+  attr_reader :id
 
   def initialize(params)
     @dataset_params = params[:dataset] || params[:connector]

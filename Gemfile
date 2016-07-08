@@ -8,7 +8,7 @@ gem 'pg', '~> 0.18'
 
 gem 'oj'
 gem 'oj_mimic_json'
-gem 'active_model_serializers', '~> 0.10.0.rc5'
+gem 'active_model_serializers', '~> 0.10.2'
 gem 'curb', require: false
 
 group :development, :test do
