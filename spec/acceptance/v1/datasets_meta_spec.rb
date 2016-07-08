@@ -61,7 +61,7 @@ module V1
 
       let!(:dataset_id) { Dataset.first.id }
 
-      it 'Allows to create json dataset with data and data_attributes' do
+      it 'Allows to create json dataset with data and fields' do
         post '/datasets', params: params
 
         expect(status).to eq(201)

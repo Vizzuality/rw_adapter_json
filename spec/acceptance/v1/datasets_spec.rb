@@ -72,11 +72,11 @@ module V1
           data = json['data'][0]
 
           expect(status).to eq(200)
-          expect(data['cartodb_id']).not_to  be_nil
-          expect(data['pcpuid']).not_to      be_nil
-          expect(data['the_geom']).to        be_present
-          expect(json['data_attributes']).to be_present
-          expect(json['data'].length).to     eq(1)
+          expect(data['cartodb_id']).not_to be_nil
+          expect(data['pcpuid']).not_to     be_nil
+          expect(data['the_geom']).to       be_present
+          expect(json['fields']).to         be_present
+          expect(json['data'].length).to    eq(1)
         end
       end
 
