@@ -2,6 +2,10 @@ require 'acceptance_helper'
 
 module V1
   describe 'Create Service Settings', type: :request do
+    before :each do
+      ServiceSetting.delete_all
+    end
+
     context 'For none existing settings' do
       it 'Allows to create service token and gateway url' do
         get "/info?token=3123123der324eewr434ewr4324&url=http://192.168.99.100:8000"

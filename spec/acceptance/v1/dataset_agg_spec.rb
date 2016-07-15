@@ -2,6 +2,8 @@ require 'acceptance_helper'
 
 module V1
   describe 'Datasets AGG', type: :request do
+    fixtures :service_settings
+
     context 'Aggregation for specific dataset' do
       let!(:data_columns) {{
                             "iso": {
@@ -30,27 +32,32 @@ module V1
       let!(:data) {[{
                       "iso": "AUS",
                       "year": "2011",
-                      "population": "2500"
+                      "population": "2500",
+                      "loss": "1000"
                     },
                     {
                       "iso": "AUS",
                       "year": "2013",
-                      "population": "500"
+                      "population": "500",
+                      "loss": "2000"
                     },
                     {
                       "iso": "ESP",
                       "year": "2014",
-                      "population": "500"
+                      "population": "500",
+                      "loss": "3000"
                     },
                     {
                       "iso": "ESP",
                       "year": "2014",
-                      "population": "500"
+                      "population": "500",
+                      "loss": "4000"
                     },
                     {
                       "iso": "ESP",
                       "year": "2014",
-                      "population": "500"
+                      "population": "500",
+                      "loss": "5000"
                   }]}
 
       let!(:dataset) {
@@ -74,9 +81,11 @@ module V1
                       }
                     }}}
 
+      let(:group_attr_1) { URI.encode(Oj.dump([{"onStatisticField":"population","statisticType":"sum","outStatisticFieldName":"population"},{"onStatisticField":"loss","statisticType":"avg","outStatisticFieldName":"loss"}])) }
+
       context 'Aggregation with params' do
-        it 'Allows aggregate JSON data by one sum attribute and group by two attributes' do
-          post "/query/#{dataset_id}?select[]=iso,population,year&filter=(iso=='AUS','ESP')&aggr_by[]=population&aggr_func=sum&group_by=iso,year&order[]=iso", params: params
+        it 'Allows aggregate JSON data by one sum attribute and group by two attributes using FS' do
+          post "/query/#{dataset_id}?outFields=iso,population,year&outStatistics=#{group_attr_1}&tableName=data&where=iso in ('AUS','ESP')&groupByFieldsForStatistics=iso,year&orderByFields=iso", params: params
 
           data = json['data']
 
@@ -84,27 +93,50 @@ module V1
           expect(data.length).to           eq(3)
           expect(json['fields']).to        be_present
           expect(data[0]['population']).to eq(2500)
+          expect(data[0]['loss']).to       eq(1000.0)
           expect(data[0]['year']).to       eq('2011')
           expect(data[1]['population']).to eq(500)
+          expect(data[1]['loss']).to       eq(2000.0)
           expect(data[1]['year']).to       eq('2013')
           expect(data[2]['population']).to eq(1500) # 3x500
+          expect(data[2]['loss']).to       eq(4000.0)
+          expect(data[2]['year']).to       eq('2014')
         end
 
-        it 'Allows aggregate JSON data by one max attribute and group by one attribute' do
-          post "/query/#{dataset_id}?select[]=iso,population&filter=(iso=='ESP','AUS')&aggr_by[]=population&aggr_func=max&group_by=iso&order[]=iso", params: params
+        it 'Allows aggregate JSON data by one sum attribute and group by two attributes using SQL' do
+          post "/query/#{dataset_id}?sql=select iso,sum(population) as population,year,avg(loss) as loss from data where iso in ('AUS','ESP') group by iso,year order by iso", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data.length).to           eq(2)
-          expect(data[0]['iso']).to        eq('AUS')
+          expect(data.length).to           eq(3)
+          expect(json['fields']).to        be_present
           expect(data[0]['population']).to eq(2500)
-          expect(data[1]['iso']).to        eq('ESP')
+          expect(data[0]['loss']).to       eq(1000.0)
+          expect(data[0]['year']).to       eq('2011')
           expect(data[1]['population']).to eq(500)
+          expect(data[1]['loss']).to       eq(2000.0)
+          expect(data[1]['year']).to       eq('2013')
+          expect(data[2]['population']).to eq(1500) # 3x500
+          expect(data[2]['loss']).to       eq(4000.0)
+          expect(data[2]['year']).to       eq('2014')
         end
 
-        it 'Allows aggregate JSON data by one sum attribute and group by one attribute' do
-          post "/query/#{dataset_id}?select[]=year,population&aggr_by[]=population&aggr_func=sum&group_by=year&order[]=year", params: params
+        it 'Allows aggregate JSON data by one max attribute and group by one attribute using SQL' do
+          post "/query/#{dataset_id}?sql=select iso,max(population) from data where iso in ('ESP','AUS') group by iso order by iso", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data.length).to    eq(2)
+          expect(data[0]['iso']).to eq('AUS')
+          expect(data[0]['max']).to eq(2500)
+          expect(data[1]['iso']).to eq('ESP')
+          expect(data[1]['max']).to eq(500)
+        end
+
+        it 'Allows aggregate JSON data by one sum attribute and group by one attribute using SQL' do
+          post "/query/#{dataset_id}?sql=select year,sum(population) as population from data group by year order by year ASC", params: params
 
           data = json['data']
 
@@ -118,12 +150,12 @@ module V1
         end
 
         it 'Return error message for wrong params' do
-          post "/query/#{dataset_id}?select[]=iso,population&filter=(isoss=='ESP','AUS')&aggr_by[]=population&group_by=isoss&aggr_func=max&order[]=isoss", params: params
+          post "/query/#{dataset_id}?sql=select years,sum(population) from data group by year order by year ASC", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data['error'][0]).to match("ERROR: column \"isoss\" does not exist")
+          expect(data['error'][0]).to match("ERROR: column \"t.years\" must appear in the GROUP BY clause or be used in an aggregate function")
         end
       end
     end

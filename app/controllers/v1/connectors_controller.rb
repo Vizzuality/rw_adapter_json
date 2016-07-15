@@ -52,18 +52,19 @@ module V1
       end
 
       def set_query_filter
+        # For convert endpoint fs2SQL
         @query_filter = {}
-        @query_filter['select']     = params[:select]     if params[:select].present?
-        @query_filter['order']      = params[:order]      if params[:order].present?
-        # For Filter
-        @query_filter['filter']     = params[:filter]     if params[:filter].present?
-        @query_filter['filter_not'] = params[:filter_not] if params[:filter_not].present?
-        # For group
-        @query_filter['aggr_by']    = params[:aggr_by]    if params[:aggr_by].present?
-        @query_filter['aggr_func']  = params[:aggr_func]  if params[:aggr_func].present?
-        @query_filter['group_by']   = params[:group_by]   if params[:group_by].present?
-        # Limit
-        @query_filter['limit']      = params[:limit]      if params[:limit].present?
+        @query_filter['limit']                      = params[:limit]                      if params[:limit].present?
+        @query_filter['outFields']                  = params[:outFields]                  if params[:outFields].present?
+        @query_filter['orderByFields']              = params[:orderByFields]              if params[:orderByFields].present?
+        @query_filter['resultRecordCount']          = params[:resultRecordCount]          if params[:resultRecordCount].present?
+        @query_filter['where']                      = params[:where]                      if params[:where].present?
+        @query_filter['tableName']                  = params[:tableName]                  if params[:tableName].present?
+        @query_filter['groupByFieldsForStatistics'] = params[:groupByFieldsForStatistics] if params[:groupByFieldsForStatistics].present?
+        @query_filter['outStatistics']              = params[:outStatistics]              if params[:outStatistics].present?
+        @query_filter['statisticType']              = params[:statisticType]              if params[:statisticType].present?
+        # For convert endpoint checkSQL
+        @query_filter['sql']                        = params[:sql]                        if params[:sql].present?
       end
 
       def set_uri
