@@ -2,6 +2,8 @@ require 'acceptance_helper'
 
 module V1
   describe 'Datasets', type: :request do
+    fixtures :service_settings
+
     context 'For specific dataset' do
       let!(:data_columns) {{
                             "pcpuid": {
@@ -91,7 +93,7 @@ module V1
         end
 
         it 'Allows access Json data with order ASC' do
-          post "/query/#{dataset_id}?order[]=cartodb_id", params: params
+          post "/query/#{dataset_id}?orderByFields=cartodb_id ASC&limit=1", params: params
 
           data = json['data'][0]
 
@@ -100,8 +102,8 @@ module V1
           expect(json['data'].length).to eq(1)
         end
 
-        it 'Allows access Json data with order DESC' do
-          post "/query/#{dataset_id}?order[]=-cartodb_id", params: params
+        it 'Allows access Json data with order DESC using FS' do
+          post "/query/#{dataset_id}?orderByFields=cartodb_id DESC", params: params
 
           data = json['data'][0]
 
@@ -109,8 +111,8 @@ module V1
           expect(data['cartodb_id']).to eq('5')
         end
 
-        it 'Allows access Json data details with select and order wit data limit 2' do
-          post "/query/#{dataset_id}?select[]=cartodb_id,pcpuid&order[]=pcpuid&limit=2", params: params
+        it 'Allows access Json data details with select and order wit data limit 2 using FS' do
+          post "/query/#{dataset_id}?outFields=cartodb_id,pcpuid&orderByFields=pcpuid ASC&limit=2", params: params
 
           data = json['data'][0]
 
@@ -121,8 +123,8 @@ module V1
           expect(json['data'].length).to  eq(2)
         end
 
-        it 'Allows access Json data details with select, filter and order DESC' do
-          post "/query/#{dataset_id}?select[]=cartodb_id,pcpuid&filter=(cartodb_id==1,2,4,5 <and> pcpuid><'350558'..'9506590')&order[]=-pcpuid&limit=2", params: params
+        it 'Allows access Json data details with select, filter and order DESC using SQL' do
+          post "/query/#{dataset_id}?sql=select cartodb_id,pcpuid from data where cartodb_id in ('1','2','4','5') and pcpuid between '350558' and '9506590' order by pcpuid DESC", params: params
 
           data = json['data'][0]
 
@@ -130,22 +132,22 @@ module V1
           expect(data['cartodb_id']).to   eq('1')
           expect(data['pcpuid']).to       eq('500001')
           expect(data['the_geom']).not_to be_present
-          expect(json['data'].length).to eq(2)
+          expect(json['data'].length).to eq(3)
         end
 
         it 'Allows access Json data details with select, filter_not and order' do
-          post "/query/#{dataset_id}?select[]=cartodb_id,pcpuid&filter_not=(cartodb_id>=4 <and> pcpuid><'500001'..'9506590')&order[]=pcpuid", params: params
+          post "/query/#{dataset_id}?sql=select cartodb_id,pcpuid from data where cartodb_id >= '4' and pcpuid between '200001' and '9506590' order by pcpuid ASC", params: params
 
           data = json['data'][0]
 
           expect(status).to eq(200)
-          expect(data['cartodb_id']).to   eq('2')
+          expect(data['cartodb_id']).to   eq('4')
           expect(data['pcpuid']).not_to   be_nil
           expect(data['the_geom']).not_to be_present
         end
 
         it 'Allows access Json data details without select, all filters and order DESC' do
-          post "/query/#{dataset_id}?filter=(cartodb_id==5)&filter_not=(cartodb_id==4 <and> pcpuid><'500001'..'9506590')&order[]=-pcpuid", params: params
+          post "/query/#{dataset_id}?where=cartodb_id = '5' and cartodb_id != '4' and pcpuid not between '500001' and '9506590'&orderByFields=pcpuid DESC", params: params
 
           data = json['data'][0]
 
@@ -156,39 +158,34 @@ module V1
         end
 
         it 'Allows access Json data details for all filters, order and without select' do
-          post "/query/#{dataset_id}?filter=(cartodb_id<<5)&filter_not=(cartodb_id==4 <and> pcpuid><'500001'..'9506590')&order[]=-cartodb_id", params: params
+          post "/query/#{dataset_id}?where=cartodb_id < '5' and cartodb_id != '4' and pcpuid between '500001' and '9506590'&orderByFields=cartodb_id DESC", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data.size).to               eq(2)
-          expect(data[0]['cartodb_id']).to   eq('3')
+          expect(data.size).to               eq(1)
+          expect(data[0]['cartodb_id']).to   eq('1')
           expect(data[0]['pcpuid']).not_to   be_nil
           expect(data[0]['the_geom']).not_to be_nil
-          expect(data[1]['cartodb_id']).to   eq('2')
-          expect(json['data'].length).to     eq(2)
         end
 
         it 'Allows access Json data details for all filters without select and order' do
-          post "/query/#{dataset_id}?filter=(cartodb_id>=2)&filter_not=(cartodb_id==4 <and> pcpuid><'350659'..'9506590')", params: params
+          post "/query/#{dataset_id}?sql=select * from data where cartodb_id >= '2' and cartodb_id != '4' and pcpuid between '350659' and '9506590'", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data[0]['cartodb_id']).to   eq('2')
-          expect(data[0]['pcpuid']).not_to   be_nil
-          expect(data[0]['the_geom']).not_to be_nil
-          expect(data[1]['cartodb_id']).to   eq('5')
+          expect(data[0]['cartodb_id']).to   eq('3')
         end
 
         it 'Allows access Json data details for all filters' do
-          post "/query/#{dataset_id}?select[]=cartodb_id,pcpuid&filter=(cartodb_id<<5 <and> pcpuid>='350558')&filter_not=(cartodb_id==4 <and> pcpuid><'350640'..'9506590')&order[]=-pcpuid", params: params
+          post "/query/#{dataset_id}?sql=select cartodb_id,pcpuid from data where cartodb_id < '5' and pcpuid >= '350558' and cartodb_id != '4' and pcpuid not between '350640' and '450590' order by pcpuid DESC", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data.size).to             eq(1)
-          expect(data[0]['cartodb_id']).to eq('2')
+          expect(data.size).to             eq(2)
+          expect(data[0]['cartodb_id']).to eq('1')
           expect(data[0]['pcpuid']).not_to be_nil
           expect(data[0]['the_geom']).to   be_nil
         end
