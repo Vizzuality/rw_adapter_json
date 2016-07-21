@@ -2,6 +2,7 @@ class DatasetParams < Hash
   def initialize(params)
     sanitized_params = {
       id: params[:id] || nil,
+      data_id: params[:data_id] || nil,
       name: params[:name] || nil,
       provider: params[:provider] || nil,
       format: params[:format] || nil,
