@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: service_settings
+#
+#  id         :uuid             not null, primary key
+#  name       :string
+#  token      :string
+#  url        :string
+#  listener   :boolean
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
+
 class ServiceSetting < ApplicationRecord
   class << self
     def save_gateway_settings(options=nil)
