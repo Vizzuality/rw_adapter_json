@@ -132,7 +132,7 @@ module V1
           expect(data['cartodb_id']).to   eq('1')
           expect(data['pcpuid']).to       eq('500001')
           expect(data['the_geom']).not_to be_present
-          expect(json['data'].length).to eq(3)
+          expect(json['data'].length).to  eq(3)
         end
 
         it 'Allows access Json data details with select, filter_not and order' do

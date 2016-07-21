@@ -28,6 +28,33 @@
       },
       {
         "url": "/json-datasets/:id",
+        "method": "POST",
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "http://localhost:3010",
+            "path": "/datasets/:id"
+        }]
+      },
+      {
+        "url": "/json-datasets/:id/data/:data_id",
+        "method": "POST",
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "http://localhost:3010",
+            "path": "/datasets/:id/data/:data_id"
+        }]
+      },
+      {
+        "url": "/json-datasets/:id/data/:data_id",
+        "method": "DELETE",
+        "endpoints": [{
+            "method": "DELETE",
+            "baseUrl": "http://localhost:3010",
+            "path": "/datasets/:id/data/:data_id"
+        }]
+      },
+      {
+        "url": "/json-datasets/:id",
         "method": "DELETE",
         "endpoints": [{
             "method": "DELETE",
