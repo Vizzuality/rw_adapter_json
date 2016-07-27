@@ -20,11 +20,11 @@ case "$1" in
         ;;
     start)
         echo "Running Start"
-        bundle exec rake db:exists RAILS_ENV=staging
+        bundle exec rake db:exists RAILS_ENV=production
 
         export SECRET_KEY_BASE=$(rake secret)
 
-        exec ./server start staging
+        exec ./server start production
         ;;
     *)
         exec "$@"
