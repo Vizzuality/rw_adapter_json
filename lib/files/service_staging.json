@@ -1,6 +1,7 @@
 {
     "id": "rw_adapter_json_v1",
     "name": "RW Adapter Json v1",
+    "tags": ["rw"],
     "urls": [
       {
         "url": "/query/:dataset",
