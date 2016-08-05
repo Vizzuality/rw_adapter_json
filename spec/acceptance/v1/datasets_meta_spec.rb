@@ -96,6 +96,29 @@ module V1
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
 
+      it 'Allows to update dataset without data_path' do
+        post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
+                                                 "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json"
+                                                }}
+
+        expect(status).to eq(200)
+        expect(json['message']).to                           eq('Dataset updated')
+        expect(Dataset.find(dataset_id).data_columns).not_to be_empty
+        expect(Dataset.find(dataset_id).data).not_to         be_empty
+      end
+
+      it 'Allows to update dataset with data_path root_path' do
+        post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
+                                                 "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json",
+                                                 "data_path": "root_path"
+                                                }}
+
+        expect(status).to eq(200)
+        expect(json['message']).to                           eq('Dataset updated')
+        expect(Dataset.find(dataset_id).data_columns).not_to be_empty
+        expect(Dataset.find(dataset_id).data).not_to         be_empty
+      end
+
       it 'Allows to update dataset data' do
         post "/datasets/#{dataset_id}/data/#{data_id}", params: {"connector": {"id": "#{dataset_id}",
                                                                  "data_id": "#{data_id}",
