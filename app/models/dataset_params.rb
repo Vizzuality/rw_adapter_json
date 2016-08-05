@@ -6,7 +6,7 @@ class DatasetParams < Hash
       name: params[:name] || nil,
       provider: params[:provider] || nil,
       format: params[:format] || nil,
-      data_path: params[:data_path] || nil,
+      data_path: params[:data_path] ||= 'root_path',
       data_horizon: params[:data_horizon] || nil,
       attributes_path: params[:attributes_path] || nil,
       data_columns: params[:data_columns] || {},
