@@ -91,7 +91,6 @@ module V1
 
           expect(status).to eq(200)
           expect(data.length).to           eq(3)
-          expect(json['fields']).to        be_present
           expect(data[0]['population']).to eq(2500)
           expect(data[0]['loss']).to       eq(1000.0)
           expect(data[0]['year']).to       eq('2011')
@@ -110,7 +109,6 @@ module V1
 
           expect(status).to eq(200)
           expect(data.length).to           eq(3)
-          expect(json['fields']).to        be_present
           expect(data[0]['population']).to eq(2500)
           expect(data[0]['loss']).to       eq(1000.0)
           expect(data[0]['year']).to       eq('2011')

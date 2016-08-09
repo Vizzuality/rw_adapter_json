@@ -60,6 +60,7 @@ module V1
                       "attributes_path": "fields",
                       "provider": "RwJson",
                       "format": "JSON",
+                      "table_name": "data",
                       "meta": {
                         "status": "saved",
                         "updated_at": "2016-04-29T09:58:20.048Z",
@@ -77,7 +78,6 @@ module V1
           expect(data['cartodb_id']).not_to be_nil
           expect(data['pcpuid']).not_to     be_nil
           expect(data['the_geom']).to       be_present
-          expect(json['fields']).to         be_present
           expect(json['data'].length).to    eq(1)
         end
       end
@@ -188,6 +188,16 @@ module V1
           expect(data[0]['cartodb_id']).to eq('1')
           expect(data[0]['pcpuid']).not_to be_nil
           expect(data[0]['the_geom']).to   be_nil
+        end
+      end
+
+      context 'For fields info' do
+        it 'Allows access Json data with default limit 1' do
+          post "/fields/#{dataset_id}", params: params
+
+          expect(status).to eq(200)
+          expect(json['fields']).to         be_present
+          expect(json['table_name']).not_to eq('data')
         end
       end
     end

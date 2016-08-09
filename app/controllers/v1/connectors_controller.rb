@@ -64,6 +64,10 @@ module V1
       end
     end
 
+    def fields
+      render json: @connector, serializer: ConnectorFieldsSerializer, root: false
+    end
+
     def info
       @service = ServiceSetting.save_gateway_settings(params)
       if @service
