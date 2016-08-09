@@ -9,7 +9,8 @@ gem 'pg', '~> 0.18'
 gem 'oj'
 gem 'oj_mimic_json'
 gem 'active_model_serializers', '~> 0.10.2'
-gem 'curb', require: false
+gem 'curb',     require: false
+gem 'typhoeus', require: false
 
 group :development, :test do
   gem 'rspec-rails', '~> 3.5.1'

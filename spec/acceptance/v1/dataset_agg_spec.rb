@@ -155,7 +155,7 @@ module V1
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data['error'][0]).to match("ERROR: column \"t.years\" must appear in the GROUP BY clause or be used in an aggregate function")
+          expect(data['error'][0]).to match("ERROR: column \"years\" does not exist")
         end
       end
     end
