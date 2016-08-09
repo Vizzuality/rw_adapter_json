@@ -36,9 +36,9 @@ module Filters
         filter
       end
 
-      def to_select(dataset_id, select_params, aggr_by, group_by)
+      def to_select(dataset_id, select_params=nil, aggr_by=nil, group_by=nil)
         if select_params.present? || aggr_by.present?
-          return select_params.include?('*') ? self_attributes(dataset_id) : select_params.split(',') unless aggr_by.present?
+          return select_params.include?('*') || select_params.blank? ? self_attributes(dataset_id) : select_params.split(',') unless aggr_by.present?
 
           select_params = if select_params.blank? || select_params.include?('*')
                             []
@@ -46,8 +46,8 @@ module Filters
                             select_params.split(',')
                           end
 
-          select_params << aggr_by.split(',')
-          select_params << group_by.split(',')
+          select_params << aggr_by.split(',')  if aggr_by.present?
+          select_params << group_by.split(',') if group_by.present?
           select_params.flatten.uniq
         else
           self_attributes(dataset_id)
