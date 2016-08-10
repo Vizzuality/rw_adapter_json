@@ -58,7 +58,7 @@ module V1
 
       let!(:external_params) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
                                              "connector_url": "http://api.resourcewatch.org:81/query/3db3a4cd-f654-41bd-b26b-8c865f02f933?limit=10",
-                                             "data_path": "data"
+                                             "data_path": "data,attributes,rows"
                              }}}
 
       let!(:dataset) {
@@ -79,7 +79,7 @@ module V1
         post '/datasets', params: external_params
 
         expect(status).to eq(201)
-        expect(json_main['message']).to                           eq('Dataset created')
+        expect(json_main['message']).to                      eq('Dataset created')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
@@ -87,11 +87,11 @@ module V1
       it 'Allows to update dataset' do
         post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
                                                  "connector_url": "http://api.resourcewatch.org:81/query/3db3a4cd-f654-41bd-b26b-8c865f02f933?limit=10",
-                                                 "data_path": "data"
+                                                 "data_path": "data,attributes,rows"
                                                 }}
 
         expect(status).to eq(200)
-        expect(json_main['message']).to                           eq('Dataset updated')
+        expect(json_main['message']).to                      eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
