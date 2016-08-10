@@ -15,3 +15,4 @@ prod:
 redis:
   image: redis
   container_name: redis_rw_adapter_json
+  restart: always
