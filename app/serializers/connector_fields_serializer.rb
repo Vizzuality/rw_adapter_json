@@ -1,4 +1,4 @@
-class ConnectorFieldsSerializer < ActiveModel::Serializer
+class ConnectorFieldsSerializer < ApplicationSerializer
   attributes :table_name, :fields
 
   def fields
