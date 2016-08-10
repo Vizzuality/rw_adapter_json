@@ -6,9 +6,9 @@ module Filters
 
         filter = 'WITH t AS (select'
 
-        to_select.each_index do |i|
+        self_attributes(dataset_id).each_index do |i|
           filter += ',' if i > 0
-          filter += " jsonb_array_elements(data) ->> '#{to_select[i]}' as #{to_select[i]}"
+          filter += " jsonb_array_elements(data) ->> '#{self_attributes(dataset_id)[i]}' as #{self_attributes(dataset_id)[i]}"
         end
 
         filter += " from datasets where id='#{dataset_id}') SELECT"
