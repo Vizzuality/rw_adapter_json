@@ -87,7 +87,7 @@ module V1
         it 'Allows aggregate JSON data by one sum attribute and group by two attributes using FS' do
           post "/query/#{dataset_id}?outFields=iso,population,year&outStatistics=#{group_attr_1}&tableName=data&where=iso in ('AUS','ESP')&groupByFieldsForStatistics=iso,year&orderByFields=iso", params: params
 
-          data = json['data']
+          data = json['attributes']['rows']
 
           expect(status).to eq(200)
           expect(data.length).to           eq(3)
@@ -105,7 +105,7 @@ module V1
         it 'Allows aggregate JSON data by one sum attribute and group by two attributes using SQL' do
           post "/query/#{dataset_id}?sql=select iso,sum(population) as population,year,avg(loss) as loss from data where iso in ('AUS','ESP') group by iso,year order by iso", params: params
 
-          data = json['data']
+          data = json['attributes']['rows']
 
           expect(status).to eq(200)
           expect(data.length).to           eq(3)
@@ -123,7 +123,7 @@ module V1
         it 'Allows aggregate JSON data by one max attribute and group by one attribute using SQL' do
           post "/query/#{dataset_id}?sql=select iso,max(population) from data where iso in ('ESP','AUS') group by iso order by iso", params: params
 
-          data = json['data']
+          data = json['attributes']['rows']
 
           expect(status).to eq(200)
           expect(data.length).to    eq(2)
@@ -136,7 +136,7 @@ module V1
         it 'Allows aggregate JSON data by one sum attribute and group by one attribute using SQL' do
           post "/query/#{dataset_id}?sql=select year,sum(population) as population from data group by year order by year ASC", params: params
 
-          data = json['data']
+          data = json['attributes']['rows']
 
           expect(status).to eq(200)
           expect(data.length).to           eq(3)
@@ -150,7 +150,7 @@ module V1
         it 'Return error message for wrong params' do
           post "/query/#{dataset_id}?sql=select years,sum(population) from data group by year order by year ASC", params: params
 
-          data = json['data']
+          data = json['attributes']['rows']
 
           expect(status).to eq(200)
           expect(data['error'][0]).to match("ERROR: column \"years\" does not exist")
