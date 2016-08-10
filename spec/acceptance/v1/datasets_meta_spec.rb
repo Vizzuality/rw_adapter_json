@@ -72,14 +72,14 @@ module V1
         post '/datasets', params: params
 
         expect(status).to eq(201)
-        expect(json['message']).to eq('Dataset created')
+        expect(json_main['message']).to eq('Dataset created')
       end
 
       it 'Allows to create json dataset from external json' do
         post '/datasets', params: external_params
 
         expect(status).to eq(201)
-        expect(json['message']).to                           eq('Dataset created')
+        expect(json_main['message']).to                           eq('Dataset created')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
@@ -91,7 +91,7 @@ module V1
                                                 }}
 
         expect(status).to eq(200)
-        expect(json['message']).to                           eq('Dataset updated')
+        expect(json_main['message']).to                           eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
@@ -102,7 +102,7 @@ module V1
                                                 }}
 
         expect(status).to eq(200)
-        expect(json['message']).to                           eq('Dataset updated')
+        expect(json_main['message']).to                           eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
@@ -114,7 +114,7 @@ module V1
                                                 }}
 
         expect(status).to eq(200)
-        expect(json['message']).to                           eq('Dataset updated')
+        expect(json_main['message']).to                           eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
@@ -126,7 +126,7 @@ module V1
                                                                 }}
 
         expect(status).to eq(200)
-        expect(json['message']).to                           eq('Dataset updated')
+        expect(json_main['message']).to                           eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data.find_all { |d| d['data_id'] == "#{data_id}" }.to_s).to include '900001'
       end
@@ -135,7 +135,7 @@ module V1
         delete "/datasets/#{dataset_id}/data/#{data_id}"
 
         expect(status).to eq(200)
-        expect(json['message']).to                           eq('Dataset data deleted')
+        expect(json_main['message']).to                           eq('Dataset data deleted')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data.find_all { |d| d['data_id'] == "#{data_id}" }.to_s).not_to include '500001'
       end
@@ -146,7 +146,7 @@ module V1
                                                 }}
 
         expect(status).to eq(200)
-        expect(json['message']).to                           eq('Dataset updated')
+        expect(json_main['message']).to                           eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
@@ -155,7 +155,7 @@ module V1
         delete "/datasets/#{dataset_id}"
 
         expect(status).to eq(200)
-        expect(json['message']).to eq('Dataset deleted')
+        expect(json_main['message']).to eq('Dataset deleted')
         expect(Dataset.where(id: dataset_id)).to be_empty
       end
     end
