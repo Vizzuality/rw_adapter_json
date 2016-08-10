@@ -1,7 +1,11 @@
 class ConnectorFieldsSerializer < ApplicationSerializer
-  attributes :table_name, :fields
+  attributes :tableName, :fields
 
   def fields
     object.data_columns
+  end
+
+  def tableName
+    object.try(:table_name)
   end
 end
