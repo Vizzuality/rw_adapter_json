@@ -22,8 +22,14 @@ class ConnectorService
     end
 
     def connect_to_provider(connector_url, data_path)
-      data_path = data_path.to_i if integer? data_path
-      data_path = nil            if data_path.include?('root_path')
+      if integer? data_path
+        path = data_path.to_i
+      elsif data_path.include?('root_path')
+        path = nil
+      else
+        path      = data_path.split(',')
+        path_size = path.size
+      end
       url = URI.decode(connector_url)
 
       @c = Curl::Easy.http_get(URI.escape(url)) do |curl|
@@ -31,8 +37,14 @@ class ConnectorService
         curl.headers['Content-Type'] = 'application/json'
       end
 
-      if data_path.present?
-        Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))[data_path]
+      if path.present? && path_size > 1
+        data = Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))[path[0]]
+        data = data[path[1]] if path[1].present?
+        data = data[path[2]] if path[2].present?
+        data = data[path[3]] if path[3].present?
+        data
+      elsif path.present? && path_size == 1
+        Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))[path]
       else
         Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))
       end
