@@ -51,6 +51,15 @@
         }]
       },
       {
+        "url": "/json-datasets/:id/data-overwrite",
+        "method": "POST",
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "http://192.168.99.100:3010",
+            "path": "/datasets/:id/overwrite"
+        }]
+      },
+      {
         "url": "/json-datasets/:id/data/:data_id",
         "method": "POST",
         "endpoints": [{

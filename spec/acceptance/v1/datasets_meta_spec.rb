@@ -119,6 +119,28 @@ module V1
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
 
+      it 'Allows to overwrite dataset data with empty object' do
+        post "/datasets/#{dataset_id}/overwrite", params: {"connector": {"id": "#{dataset_id}",
+                                                                "data": ""
+                                                               }}
+
+        expect(status).to eq(200)
+        expect(json_main['message']).to                  eq('Dataset data replaced')
+        expect(Dataset.find(dataset_id).data_columns).to be_nil
+        expect(Dataset.find(dataset_id).data).to         eq([])
+      end
+
+      it 'Allows to overwrite dataset data' do
+        post "/datasets/#{dataset_id}/overwrite", params: {"connector": {"id": "#{dataset_id}",
+                                                                "data": Oj.dump([{ "pcpuid": "900001" }])
+                                                               }}
+
+        expect(status).to eq(200)
+        expect(json_main['message']).to                  eq('Dataset data replaced')
+        # expect(Dataset.find(dataset_id).data_columns).to eq({ "pcpuid": { "type": "string" }})
+        expect(Dataset.find(dataset_id).data.size).to    eq(1)
+      end
+
       it 'Allows to update dataset data' do
         post "/datasets/#{dataset_id}/data/#{data_id}", params: {"connector": {"id": "#{dataset_id}",
                                                                  "data_id": "#{data_id}",
@@ -126,7 +148,7 @@ module V1
                                                                 }}
 
         expect(status).to eq(200)
-        expect(json_main['message']).to                           eq('Dataset updated')
+        expect(json_main['message']).to                      eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data.find_all { |d| d['data_id'] == "#{data_id}" }.to_s).to include '900001'
       end
@@ -146,7 +168,7 @@ module V1
                                                 }}
 
         expect(status).to eq(200)
-        expect(json_main['message']).to                           eq('Dataset updated')
+        expect(json_main['message']).to                      eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
         expect(Dataset.find(dataset_id).data).not_to         be_empty
       end
