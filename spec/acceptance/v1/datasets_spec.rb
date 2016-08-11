@@ -197,7 +197,7 @@ module V1
 
           expect(status).to eq(200)
           expect(json['attributes']['fields']).to         be_present
-          expect(json['attributes']['table-name']).not_to eq('data')
+          expect(json['attributes']['table_name']).not_to eq('data')
         end
       end
     end
