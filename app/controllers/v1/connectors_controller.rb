@@ -44,14 +44,14 @@ module V1
     end
 
     def overwrite
-      # begin
+      begin
         JsonConnector.overwrite_data_object(connector_params)
         notify(@dataset.id, 'saved')
         render json: { success: true, message: 'Dataset data replaced' }, status: 200
-      # rescue
-      #   notify(@dataset.id)
-      #   render json: { success: false, message: 'Error replacing dataset' }, status: 422
-      # end
+      rescue
+        notify(@dataset.id)
+        render json: { success: false, message: 'Error replacing dataset' }, status: 422
+      end
     end
 
     def delete_data
