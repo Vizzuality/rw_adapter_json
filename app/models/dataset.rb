@@ -11,7 +11,7 @@
 #
 
 class Dataset < ApplicationRecord
-  after_create :update_data_columns, if: 'data[0].present? && data_columns == data.first'
+  after_save :update_data_columns, if: 'data[0].present? && data_columns == data.first'
 
   class << self
     def execute_data_query(sql_to_run)

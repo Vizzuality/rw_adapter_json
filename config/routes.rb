@@ -4,6 +4,7 @@ Rails.application.routes.draw do
     post   'fields/:id',                 to: 'connectors#fields'
     post   'datasets',                   to: 'connectors#create'
     post   'datasets/:id',               to: 'connectors#update'
+    post   'datasets/:id/overwrite',     to: 'connectors#overwrite'
     post   'datasets/:id/data/:data_id', to: 'connectors#update_data'
     delete 'datasets/:id/data/:data_id', to: 'connectors#delete_data'
     delete 'datasets/:id',               to: 'connectors#destroy'

@@ -3,7 +3,7 @@ module V1
     before_action :set_connector,    except: :info
     before_action :set_query_filter, except: :info
     before_action :set_uri,          except: :info
-    before_action :set_dataset,      only: [:show, :update, :update_data, :destroy, :delete_data]
+    before_action :set_dataset,      only: [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
 
     def show
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, meta: { cloneUrl: clone_url }
@@ -41,6 +41,17 @@ module V1
         notify(@dataset.id)
         render json: { success: false, message: 'Error updating dataset' }, status: 422
       end
+    end
+
+    def overwrite
+      # begin
+        JsonConnector.overwrite_data_object(connector_params)
+        notify(@dataset.id, 'saved')
+        render json: { success: true, message: 'Dataset data replaced' }, status: 200
+      # rescue
+      #   notify(@dataset.id)
+      #   render json: { success: false, message: 'Error replacing dataset' }, status: 422
+      # end
     end
 
     def delete_data
