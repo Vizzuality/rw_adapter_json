@@ -11,7 +11,8 @@ class DatasetParams < Hash
       attributes_path: params[:attributes_path] || nil,
       data_columns: params[:data_columns] || {},
       data: params[:data] || [],
-      connector_url: params[:connector_url] || nil
+      connector_url: params[:connector_url] || nil,
+      table_name: params[:table_name] ||= 'data'
     }
 
     super(sanitized_params)
