@@ -30,12 +30,12 @@ class JsonConnector
     data = if options['connector_url'].present? && options['data'].blank?
              ConnectorService.connect_to_provider(dataset_url, data_path)
            else
-             Oj.load(options['data'])
+             Oj.load(options['data']) if options['data']
            end
 
     params['data'] = data.each_index do |i|
                        data[i].merge!(data_id: SecureRandom.uuid) if data[i]['data_id'].blank?
-                     end
+                     end rescue []
 
     params['id'] = options['id']
     params['data_columns'] = if params['data'].present? && options['data_columns'].blank?
@@ -74,6 +74,13 @@ class JsonConnector
     new_data = dataset_data.delete_if { |d| d['data_id'] == options['data_id'] }
     new_data = new_data.inject(data, :<<)
     dataset.update(data: new_data)
+  end
+
+  def self.overwrite_data_object(options)
+    dataset = Dataset.find(options['id'])
+    params  = build_params(options, 'build_dataset')
+    dataset.update(data_columns: nil)
+    dataset.update(params)
   end
 
   def self.delete_data_object(options)
