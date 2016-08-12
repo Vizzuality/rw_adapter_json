@@ -72,13 +72,13 @@ module V1
         it 'Allows access Json data with default limit 1' do
           post "/query/#{dataset_id}", params: params
 
-          data = json['attributes']['rows'][0]
+          data = json['data'][0]
 
           expect(status).to eq(200)
           expect(data['cartodb_id']).not_to            be_nil
           expect(data['pcpuid']).not_to                be_nil
           expect(data['the_geom']).to                  be_present
-          expect(json['attributes']['rows'].length).to eq(1)
+          expect(json['data'].length).to eq(1)
         end
       end
 
@@ -86,7 +86,7 @@ module V1
         it 'Allows access all available Json data with limit all' do
           post "/query/#{dataset_id}?limit=all", params: params
 
-          data = json['attributes']['rows']
+          data = json['data']
 
           expect(status).to eq(200)
           expect(data.length).to eq(5)
@@ -95,17 +95,17 @@ module V1
         it 'Allows access Json data with order ASC' do
           post "/query/#{dataset_id}?orderByFields=cartodb_id ASC&limit=1", params: params
 
-          data = json['attributes']['rows'][0]
+          data = json['data'][0]
 
           expect(status).to eq(200)
           expect(data['cartodb_id']).to                eq('1')
-          expect(json['attributes']['rows'].length).to eq(1)
+          expect(json['data'].length).to eq(1)
         end
 
         it 'Allows access Json data with order DESC using FS' do
           post "/query/#{dataset_id}?orderByFields=cartodb_id DESC", params: params
 
-          data = json['attributes']['rows'][0]
+          data = json['data'][0]
 
           expect(status).to eq(200)
           expect(data['cartodb_id']).to eq('5')
@@ -114,31 +114,31 @@ module V1
         it 'Allows access Json data details with select and order wit data limit 2 using FS' do
           post "/query/#{dataset_id}?outFields=cartodb_id,pcpuid&orderByFields=pcpuid ASC&limit=2", params: params
 
-          data = json['attributes']['rows'][0]
+          data = json['data'][0]
 
           expect(status).to eq(200)
           expect(data['cartodb_id']).to                eq('5')
           expect(data['pcpuid']).not_to                be_nil
           expect(data['the_geom']).not_to              be_present
-          expect(json['attributes']['rows'].length).to eq(2)
+          expect(json['data'].length).to eq(2)
         end
 
         it 'Allows access Json data details with select, filter and order DESC using SQL' do
           post "/query/#{dataset_id}?sql=select cartodb_id,pcpuid from data where cartodb_id in ('1','2','4','5') and pcpuid between '350558' and '9506590' order by pcpuid DESC", params: params
 
-          data = json['attributes']['rows'][0]
+          data = json['data'][0]
 
           expect(status).to eq(200)
           expect(data['cartodb_id']).to                eq('1')
           expect(data['pcpuid']).to                    eq('500001')
           expect(data['the_geom']).not_to              be_present
-          expect(json['attributes']['rows'].length).to eq(3)
+          expect(json['data'].length).to eq(3)
         end
 
         it 'Allows access Json data details with select, filter_not and order' do
           post "/query/#{dataset_id}?sql=select cartodb_id,pcpuid from data where cartodb_id >= '4' and pcpuid between '200001' and '9506590' order by pcpuid ASC", params: params
 
-          data = json['attributes']['rows'][0]
+          data = json['data'][0]
 
           expect(status).to eq(200)
           expect(data['cartodb_id']).to   eq('4')
@@ -149,7 +149,7 @@ module V1
         it 'Allows access Json data details without select, all filters and order DESC' do
           post "/query/#{dataset_id}?where=cartodb_id = '5' and cartodb_id != '4' and pcpuid not between '500001' and '9506590'&orderByFields=pcpuid DESC", params: params
 
-          data = json['attributes']['rows'][0]
+          data = json['data'][0]
 
           expect(status).to eq(200)
           expect(data['cartodb_id']).to eq('5')
@@ -160,7 +160,7 @@ module V1
         it 'Allows access Json data details for all filters, order and without select' do
           post "/query/#{dataset_id}?where=cartodb_id < '5' and cartodb_id != '4' and pcpuid between '500001' and '9506590'&orderByFields=cartodb_id DESC", params: params
 
-          data = json['attributes']['rows']
+          data = json['data']
 
           expect(status).to eq(200)
           expect(data.size).to               eq(1)
@@ -172,7 +172,7 @@ module V1
         it 'Allows access Json data details for all filters without select and order' do
           post "/query/#{dataset_id}?sql=select * from data where cartodb_id >= '2' and cartodb_id != '4' and pcpuid between '350659' and '9506590'", params: params
 
-          data = json['attributes']['rows']
+          data = json['data']
 
           expect(status).to eq(200)
           expect(data[0]['cartodb_id']).to eq('3')
@@ -181,7 +181,7 @@ module V1
         it 'Allows access Json data details for all filters' do
           post "/query/#{dataset_id}?sql=select cartodb_id,pcpuid from data where cartodb_id < '5' and pcpuid >= '350558' and cartodb_id != '4' and pcpuid not between '350640' and '450590' order by pcpuid DESC", params: params
 
-          data = json['attributes']['rows']
+          data = json['data']
 
           expect(status).to eq(200)
           expect(data.size).to             eq(2)
@@ -196,8 +196,8 @@ module V1
           post "/fields/#{dataset_id}", params: params
 
           expect(status).to eq(200)
-          expect(json['attributes']['fields']).to     be_present
-          expect(json['attributes']['tableName']).to eq('data')
+          expect(json['fields']).to     be_present
+          expect(json['tableName']).to eq('data')
         end
       end
     end
