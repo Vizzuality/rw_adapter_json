@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 def json
-  JSON.parse(response.body)['data']
+  JSON.parse(response.body)
 end
 
 def json_main

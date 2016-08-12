@@ -1,7 +1,7 @@
 class ConnectorSerializer < ApplicationSerializer
-  attributes :rows
+  attributes :data
 
-  def rows
+  def data
     object.data(@query_filter)
   end
 
