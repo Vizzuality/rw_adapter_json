@@ -58,7 +58,7 @@ module V1
 
       let!(:external_params) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
                                              "connector_url": "http://api.resourcewatch.org:81/query/3db3a4cd-f654-41bd-b26b-8c865f02f933?limit=10",
-                                             "data_path": "data,attributes,rows"
+                                             "data_path": "data"
                              }}}
 
       let!(:dataset) {
@@ -87,7 +87,7 @@ module V1
       it 'Allows to update dataset' do
         post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
                                                  "connector_url": "http://api.resourcewatch.org:81/query/3db3a4cd-f654-41bd-b26b-8c865f02f933?limit=10",
-                                                 "data_path": "data,attributes,rows"
+                                                 "data_path": "data"
                                                 }}
 
         expect(status).to eq(200)
