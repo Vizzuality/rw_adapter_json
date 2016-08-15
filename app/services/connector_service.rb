@@ -37,14 +37,12 @@ class ConnectorService
         curl.headers['Content-Type'] = 'application/json'
       end
 
-      if path.present? && path_size > 1
+      if path.present? && path_size > 0
         data = Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))[path[0]]
         data = data[path[1]] if path[1].present?
         data = data[path[2]] if path[2].present?
         data = data[path[3]] if path[3].present?
         data
-      elsif path.present? && path_size == 1
-        Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))[path]
       else
         Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))
       end
