@@ -6,7 +6,7 @@ module V1
     before_action :set_dataset,      only: [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
 
     def show
-      render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, meta: { cloneUrl: clone_url }
+      render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri
     end
 
     def create
