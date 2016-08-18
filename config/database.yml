@@ -55,11 +55,10 @@ test:
 
 staging:
   <<: *default
-  database: json_adapter_production
+  database: json_adapter
   password: <%= ENV['POSTGRES_PASS'] %>
 
 production:
   <<: *default
-  database: json_adapter
+  database: json_adapter_production
   password: <%= ENV['POSTGRES_PASS'] %>
-
