@@ -2,7 +2,7 @@ require 'typhoeus'
 require 'uri'
 require 'oj'
 
-class QueryService
+module QueryService
   class << self
     def connect_to_query_service(sql_params=nil)
       url = URI.decode("#{ServiceSetting.gateway_url}/convert/sql2FS?sql=#{sql_params}")

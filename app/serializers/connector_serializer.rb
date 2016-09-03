@@ -1,5 +1,5 @@
 class ConnectorSerializer < ApplicationSerializer
-    attributes :clone_url, :data
+  attributes :clone_url, :data
 
   def clone_url
     data = {}

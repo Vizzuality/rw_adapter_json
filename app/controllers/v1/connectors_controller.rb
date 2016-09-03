@@ -13,55 +13,45 @@ module V1
       begin
         @dataset = JsonConnector.build_dataset(connector_params)
         @dataset.save
-        notify(@dataset.id, 'saved')
-        render json: { success: true, message: 'Dataset created' }, status: 201
+        success_notifier('saved', 'Dataset created', 201)
       rescue
-        notify(connector_params[:id])
-        render json: { success: false, message: 'Error creating dataset' }, status: 422
+        fail_notifier(nil, 'Error creating dataset')
       end
     end
 
     def update
       begin
         JsonConnector.update_dataset(connector_params)
-        notify(@dataset.id, 'saved')
-        render json: { success: true, message: 'Dataset updated' }, status: 200
+        success_notifier('saved', 'Dataset updated', 200)
       rescue
-        notify(@dataset.id)
-        render json: { success: false, message: 'Error updating dataset' }, status: 422
+        fail_notifier(nil, 'Error updating dataset')
       end
     end
 
     def update_data
       begin
         JsonConnector.update_data_object(connector_params)
-        notify(@dataset.id, 'saved')
-        render json: { success: true, message: 'Dataset updated' }, status: 200
+        success_notifier('saved', 'Dataset updated', 200)
       rescue
-        notify(@dataset.id)
-        render json: { success: false, message: 'Error updating dataset' }, status: 422
+        fail_notifier(nil, 'Error updating dataset')
       end
     end
 
     def overwrite
       begin
         JsonConnector.overwrite_data_object(connector_params)
-        notify(@dataset.id, 'saved')
-        render json: { success: true, message: 'Dataset data replaced' }, status: 200
+        success_notifier('saved', 'Dataset data replaced', 200)
       rescue
-        notify(@dataset.id)
-        render json: { success: false, message: 'Error replacing dataset' }, status: 422
+        fail_notifier(nil, 'Error replacing dataset')
       end
     end
 
     def delete_data
       begin
         JsonConnector.delete_data_object(params)
-        notify(@dataset.id, 'saved')
-        render json: { success: true, message: 'Dataset data deleted' }, status: 200
+        success_notifier('saved', 'Dataset data deleted', 200)
       rescue
-        notify(@dataset.id)
-        render json: { success: false, message: 'Error deleting dataset data' }, status: 422
+        fail_notifier(nil, 'Error deleting dataset data')
       end
     end
 
@@ -77,16 +67,6 @@ module V1
 
     def fields
       render json: @connector, serializer: ConnectorFieldsSerializer, root: false
-    end
-
-    def info
-      @service = ServiceSetting.save_gateway_settings(params)
-      if @service
-        @docs = Oj.load(File.read("lib/files/service_#{ENV['RAILS_ENV']}.json"))
-        render json: @docs
-      else
-        render json: { success: false, message: 'Missing url and token params' }, status: 422
-      end
     end
 
     private
@@ -134,13 +114,13 @@ module V1
         params.require(:connector).permit!
       end
 
-      def clone_url
-        data = {}
-        data['http_method'] = 'POST'
-        data['url']         = "#{URI.parse(clone_uri)}"
-        data['body']        = body_params
-        data
-      end
+      # def clone_url
+      #   data = {}
+      #   data['http_method'] = 'POST'
+      #   data['url']         = "#{URI.parse(clone_uri)}"
+      #   data['body']        = body_params
+      #   data
+      # end
 
       def uri
         "#{@uri['api_gateway_url']}#{@uri['full_path']}"
@@ -156,6 +136,16 @@ module V1
             "dataset_url" => "#{URI.parse(uri)}"
           }
         }
+      end
+
+      def success_notifier(status, message, status_code)
+        notify(@dataset.id, status)
+        render json: { success: true, message: message }, status: status_code
+      end
+
+      def fail_notifier(status, message)
+        notify(@dataset.id)
+        render json: { success: false, message: message }, status: 422
       end
   end
 end
