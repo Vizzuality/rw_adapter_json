@@ -8,6 +8,8 @@ Rails.application.routes.draw do
     post   'datasets/:id/data/:data_id', to: 'connectors#update_data'
     delete 'datasets/:id/data/:data_id', to: 'connectors#delete_data'
     delete 'datasets/:id',               to: 'connectors#destroy'
-    get    'info',                       to: 'connectors#info'
+
+    get 'info', to: 'info#info'
+    get 'ping', to: 'info#ping'
   end
 end

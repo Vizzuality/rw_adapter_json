@@ -1,9 +1,9 @@
 class QueryParams < Hash
   def initialize(params)
     sanitized_params = {
-      aggr_by:      params['outStatistics'].present? ? build_aggr_by(params['outStatistics']) : [],
-      aggr_func:    params['outStatistics'].present? ? build_aggr_func(params['outStatistics']) : [],
-      aggr_as:      params['outStatistics'].present? ? build_aggr_as(params['outStatistics']) : [],
+      aggr_by:      params['outStatistics'].present? ? build_aggr(params['outStatistics'], ':onStatisticField') : [],
+      aggr_func:    params['outStatistics'].present? ? build_aggr(params['outStatistics'], ':statisticType') : [],
+      aggr_as:      params['outStatistics'].present? ? build_aggr(params['outStatistics'], ':outStatisticFieldName') : [],
       sql:          params['sql']                        || nil,
       select:       params['outFields']                  || nil,
       order:        params['orderByFields']              || nil,
@@ -22,29 +22,11 @@ class QueryParams < Hash
 
   private
 
-    def build_aggr_by(out_statistics)
+    def build_aggr(out_statistics, field)
       out_statistics = eval(out_statistics)
       array = []
       out_statistics.each_index do |i|
-        array << "#{out_statistics[i][:onStatisticField]}"
-      end
-      array
-    end
-
-    def build_aggr_func(out_statistics)
-      out_statistics = eval(out_statistics)
-      array = []
-      out_statistics.each_index do |i|
-        array << "#{out_statistics[i][:statisticType]}"
-      end
-      array
-    end
-
-    def build_aggr_as(out_statistics)
-      out_statistics = eval(out_statistics)
-      array = []
-      out_statistics.each_index do |i|
-        array << "#{out_statistics[i][:outStatisticFieldName]}"
+        array << "#{out_statistics[i][eval(field)]}"
       end
       array
     end

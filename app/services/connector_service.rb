@@ -2,7 +2,7 @@ require 'curb'
 require 'uri'
 require 'oj'
 
-class ConnectorService
+module ConnectorService
   class << self
     def connect_to_dataset_service(dataset_id, status)
       status = case status
