@@ -12,13 +12,14 @@ module ConnectorService
                end
 
       params = { dataset: { dataset_attributes: { status: status } } }
-      url    = URI.decode("#{ServiceSetting.gateway_url}/datasets/#{dataset_id}")
+      url    = URI.decode("#{Service::SERVICE_URL}/datasets/#{dataset_id}")
 
       @c = Curl::Easy.http_put(URI.escape(url), Oj.dump(params)) do |curl|
         curl.headers['Accept']         = 'application/json'
         curl.headers['Content-Type']   = 'application/json'
-        curl.headers['authentication'] = ServiceSetting.auth_token if ServiceSetting.auth_token.present?
+        curl.headers['authentication'] = Service::SERVICE_TOKEN
       end
+      @c.perform
     end
 
     def connect_to_provider(connector_url, data_path)
@@ -36,6 +37,7 @@ module ConnectorService
         curl.headers['Accept']       = 'application/json'
         curl.headers['Content-Type'] = 'application/json'
       end
+      @c.perform
 
       if path.present? && path_size > 0
         data = Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))[path[0]]
