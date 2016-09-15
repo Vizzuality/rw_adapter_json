@@ -1,16 +1,20 @@
 prod:
   image: vizzuality/rw_adapter_json:1.0.0${STAGING}
-  command: start
-  ports:
-    - '3010'
-  links:
-    - redis
   env_file: prod.env
 
-  log_driver: 'gelf'
+  command: start
   restart: always
+  ports:
+    - '3010'
+
+  dns: ${DNS_SERVER}
+
+  log_driver: 'gelf'
   log_opt:
     gelf-address: ${GELF_ADDRESS}
+
+  links:
+    - redis
 
 redis:
   image: redis
