@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Filters
   class GroupBy
     def self.apply_group_by(group_by_params)

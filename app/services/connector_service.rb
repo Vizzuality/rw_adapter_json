@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'curb'
 require 'uri'
 require 'oj'
@@ -11,7 +12,7 @@ module ConnectorService
                else 2
                end
 
-      params = { dataset: { dataset_attributes: { status: status } } }
+      params = { dataset: { status: status } }
       url    = URI.decode("#{Service::SERVICE_URL}/datasets/#{dataset_id}")
 
       @c = Curl::Easy.http_put(URI.escape(url), Oj.dump(params)) do |curl|
@@ -39,7 +40,7 @@ module ConnectorService
       end
       @c.perform
 
-      if path.present? && path_size > 0
+      if path.present? && path_size.positive?
         data = Oj.load(@c.body_str.force_encoding(Encoding::UTF_8))[path[0]]
         data = data[path[1]] if path[1].present?
         data = data[path[2]] if path[2].present?

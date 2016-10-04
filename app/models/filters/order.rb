@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Filters
   class Order
     def self.apply_order(order_params)
@@ -5,7 +6,7 @@ module Filters
       filter = ' ORDER BY'
 
       to_order.each_index do |i|
-        filter += ',' if i > 0
+        filter += ',' if i.positive?
         order_attr = if to_order[i].include?('DESC') || to_order[i].include?('ASC')
                        "#{to_order[i]}"
                      else

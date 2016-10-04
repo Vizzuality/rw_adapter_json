@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module V1
   class ConnectorsController < ApplicationController
     before_action :set_connector,    except: :info
