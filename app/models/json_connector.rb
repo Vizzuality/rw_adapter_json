@@ -59,7 +59,8 @@ class JsonConnector
 
       full_data.reject(&:nil?).in_groups_of(5000).each do |group|
         group = group.reject(&:nil?)
-        ActiveRecord::Base.connection.execute("UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = '#{dataset_id}'")
+        query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = ?", dataset_id])
+        ActiveRecord::Base.connection.execute(query)
         sleep_connection unless Rails.env.test?
       end
     end
