@@ -8,7 +8,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require 'spec_helper'
 require 'rspec/rails'
 require 'rspec/active_job'
-
+require 'webmock/rspec'
 # require 'webmock/rspec'
 # WebMock.disable_net_connect!(allow_localhost: true)
 # Add additional requires below this line. Rails is not loaded until this point!

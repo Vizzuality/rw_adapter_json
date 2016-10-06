@@ -43,6 +43,7 @@ GEM
       i18n (~> 0.7)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
+    addressable (2.4.0)
     annotate (2.7.1)
       activerecord (>= 3.2, < 6.0)
       rake (>= 10.4, < 12.0)
@@ -59,6 +60,8 @@ GEM
     coderay (1.1.1)
     concurrent-ruby (1.0.2)
     connection_pool (2.2.0)
+    crack (0.4.3)
+      safe_yaml (~> 1.0.0)
     curb (0.9.3)
     database_cleaner (1.5.3)
     diff-lcs (1.2.5)
@@ -75,9 +78,10 @@ GEM
     ffi (1.9.14)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
+    hashdiff (0.3.0)
     i18n (0.7.0)
     json (2.0.2)
-    jsonapi (0.1.1.beta4)
+    jsonapi (0.1.1.beta5)
       jsonapi-parser (= 0.1.1.beta2)
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta2)
@@ -97,15 +101,13 @@ GEM
     minitest (5.9.1)
     newrelic_rpm (3.16.3.323)
     nio4r (1.2.1)
-    nokogiri (1.6.8)
+    nokogiri (1.6.8.1)
       mini_portile2 (~> 2.1.0)
-      pkg-config (~> 1.1.7)
     oj (2.17.4)
     oj_mimic_json (1.0.1)
     parser (2.3.1.4)
       ast (~> 2.2)
     pg (0.19.0)
-    pkg-config (1.1.7)
     powerpack (0.1.1)
     pry (0.10.4)
       coderay (~> 1.1.0)
@@ -180,6 +182,7 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-progressbar (1.8.1)
+    safe_yaml (1.0.4)
     sidekiq (4.2.2)
       concurrent-ruby (~> 1.0)
       connection_pool (~> 2.2, >= 2.2.0)
@@ -214,6 +217,10 @@ GEM
       tzinfo (>= 1.0.0)
     unicode-display_width (1.1.1)
     uniform_notifier (1.10.0)
+    webmock (2.1.0)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff
     websocket-driver (0.6.4)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
@@ -253,6 +260,7 @@ DEPENDENCIES
   timecop
   typhoeus
   tzinfo-data
+  webmock
 
 RUBY VERSION
    ruby 2.3.1p112

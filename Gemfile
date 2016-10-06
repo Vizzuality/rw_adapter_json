@@ -15,6 +15,7 @@ gem 'typhoeus', require: false
 
 group :development, :test do
   gem 'rspec-rails', '~> 3.5.1'
+  gem 'webmock'
   gem 'byebug'
   gem 'faker'
   gem 'rubocop', require: false
