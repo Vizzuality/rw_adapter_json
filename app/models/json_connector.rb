@@ -49,7 +49,7 @@ class JsonConnector
       params
     end
 
-    def sleeping_connection
+    def sleep_connection
       ActiveRecord::Base.clear_reloadable_connections!
       sleep 15
     end
@@ -60,7 +60,7 @@ class JsonConnector
       full_data.reject(&:nil?).in_groups_of(5000).each do |group|
         group = group.reject(&:nil?)
         ActiveRecord::Base.connection.execute("UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = '#{dataset_id}'")
-        sleeping_connection unless Rails.env.test?
+        sleep_connection unless Rails.env.test?
       end
     end
 
