@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # == Schema Information
 #
 # Table name: datasets
@@ -11,7 +12,7 @@
 #
 
 class Dataset < ApplicationRecord
-  after_save :update_data_columns, if: 'data[0].present? && data_columns == data.first'
+  after_update_commit :update_data_columns, if: 'data.any? && data_columns[0].in?(data[0])'
 
   class << self
     def execute_data_query(sql_to_run)
@@ -29,11 +30,12 @@ class Dataset < ApplicationRecord
     end
   end
 
-  private
+  def update_data_columns
+    self.update_attributes(data_columns: Hash[ActiveRecord::Base.connection.execute(update_meta_data).
+                                                                 map { |v| [v['key'], { type: v['type'] }] }])
+  end
 
-    def update_data_columns
-      self.update_attributes(data_columns: ActiveRecord::Base.connection.execute(update_meta_data).map { |v| { v['key'] => { type: v['type'] } } })
-    end
+  private
 
     def update_meta_data
       dataset_id = ActiveRecord::Base.send(:sanitize_sql_array, ['id = :dataset_id', dataset_id: self.id])

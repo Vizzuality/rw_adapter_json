@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class DatasetParams < Hash
   def initialize(params)
     sanitized_params = {
