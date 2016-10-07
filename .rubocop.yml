@@ -1,5 +1,5 @@
 AllCops:
-  TargetRubyVersion: 2.1
+  TargetRubyVersion: 2.3
   # Cop names are not displayed in offense messages by default. Change behavior
   # by overriding DisplayCopNames, or by giving the -D/--display-cop-names
   # option.
@@ -154,8 +154,8 @@ Style/DefWithParentheses:
   Enabled: false
 
 # Checks for use of deprecated Hash methods.
-Style/DeprecatedHashMethods:
-  Enabled: false
+# Style/DeprecatedHashMethods:
+#   Enabled: false
 
 # Document classes and non-namespace modules.
 Style/Documentation:

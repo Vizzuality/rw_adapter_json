@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class APIVersion
   def initialize(options)
     @version = options[:version]
@@ -12,6 +13,6 @@ class APIVersion
 
     def check_headers(headers)
       accept = headers['Accept']
-      accept && accept.include?("application/rw_adapter_json-v#{@version}+json")
+      accept&.include?("application/rw_adapter_json-v#{@version}+json")
     end
 end

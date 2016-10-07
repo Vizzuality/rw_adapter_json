@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Filters
   class Limit
     def self.apply_limit(limit_params)

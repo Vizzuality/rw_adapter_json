@@ -84,6 +84,76 @@ module V1
       let(:group_attr_1) { URI.encode(Oj.dump([{"onStatisticField":"population","statisticType":"sum","outStatisticFieldName":"population"},{"onStatisticField":"loss","statisticType":"avg","outStatisticFieldName":"loss"}])) }
 
       context 'Aggregation with params' do
+        let!(:query_1) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?outFields=iso,year&outStatistics=[{\"onStatisticField\":\"population\",\"statisticType\":\"sum\",\"outStatisticFieldName\":\"population\"},{\"onStatisticField\":\"loss\",\"statisticType\":\"avg\",\"outStatisticFieldName\":\"loss\"}]&tableName=data&where=iso in ('AUS','ESP')&groupByFieldsForStatistics=iso,year&orderByFields=iso"
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        let!(:query_2) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?outFields=iso&outStatistics=[{\"onStatisticField\":\"population\",\"statisticType\":\"max\"}]&tableName=data&where=iso in ('ESP','AUS')&groupByFieldsForStatistics=iso&orderByFields=iso"
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        let!(:query_3) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?outFields=year&outStatistics=[{\"onStatisticField\":\"population\",\"statisticType\":\"sum\",\"outStatisticFieldName\":\"population\"}]&tableName=data&groupByFieldsForStatistics=year&orderByFields=year ASC"
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        let!(:query_4) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?outFields=years&outStatistics=[{\"onStatisticField\":\"population\",\"statisticType\":\"sum\"}]&tableName=data&groupByFieldsForStatistics=year&orderByFields=year ASC"
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        before(:each) do
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20iso,sum(population)%20as%20population,year,avg(loss)%20as%20loss%20from%20data%20where%20iso%20in%20('AUS','ESP')%20group%20by%20iso,year%20order%20by%20iso").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_1), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20iso,max(population)%20from%20data%20where%20iso%20in%20('ESP','AUS')%20group%20by%20iso%20order%20by%20iso").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_2), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20year,sum(population)%20as%20population%20from%20data%20group%20by%20year%20order%20by%20year%20ASC").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_3), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20years,sum(population)%20from%20data%20group%20by%20year%20order%20by%20year%20ASC").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_4), :headers => {})
+        end
+
         it 'Allows aggregate JSON data by one sum attribute and group by two attributes using FS' do
           post "/query/#{dataset_id}?outFields=iso,population,year&outStatistics=#{group_attr_1}&tableName=data&where=iso in ('AUS','ESP')&groupByFieldsForStatistics=iso,year&orderByFields=iso", params: params
 

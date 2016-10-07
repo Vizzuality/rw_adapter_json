@@ -48,8 +48,12 @@ module V1
                       "pcpuid": "500001",
                       "the_geom": "0101000020E610000000000000806EF84000000000806EF840",
                       "cartodb_id": 1,
-                      "data_id": "#{data_id}"
+                      "data_id": data_id
                   }]}
+
+      let!(:data_without_path) {
+        [{"count": 1, "confidence": "confirmed", "country_iso": "BRA", "state_iso": "BRA1", "year": "2016", "day": 9}, {"count": 13, "confidence": "confirmed", "country_iso": "BRA", "state_iso": "BRA1", "year": "2016", "day": 10}]
+      }
 
       let!(:params) {{"connector": {
                       "data_columns": Oj.dump(data_columns),
@@ -57,8 +61,7 @@ module V1
                     }}}
 
       let!(:external_params) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
-                                             "connector_url": "http://api.resourcewatch.org:81/query/3db3a4cd-f654-41bd-b26b-8c865f02f933?limit=10",
-                                             "data_path": "data"
+                                             "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be"
                              }}}
 
       let!(:dataset) {
@@ -68,6 +71,7 @@ module V1
 
       let!(:dataset_id) { dataset.id }
 
+
       it 'Allows to create json dataset with data and fields' do
         post '/datasets', params: params
 
@@ -75,48 +79,65 @@ module V1
         expect(json_main['message']).to eq('Dataset created')
       end
 
-      it 'Allows to create json dataset from external json' do
-        post '/datasets', params: external_params
+      context 'Create JSON dataset from external json' do
+        before(:each) do
+          stub_request(:get, 'http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be').
+          with(:headers => {'Accept' => 'application/json', 'Content-Type' => 'application/json'}).
+          to_return(:status => 200, :body => Oj.dump(data), :headers => {})
+        end
 
-        expect(status).to eq(201)
-        expect(json_main['message']).to                      eq('Dataset created')
-        expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-        expect(Dataset.find(dataset_id).data).not_to         be_empty
+        it 'Allows to create json dataset' do
+          post '/datasets', params: external_params
+
+          expect(status).to eq(201)
+          expect(json_main['message']).to                      eq('Dataset created')
+          expect(Dataset.find(dataset_id).data_columns).not_to be_empty
+          expect(Dataset.find(dataset_id).data).not_to         be_empty
+        end
       end
 
-      it 'Allows to update dataset' do
-        post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
-                                                 "connector_url": "http://api.resourcewatch.org:81/query/3db3a4cd-f654-41bd-b26b-8c865f02f933?limit=10",
-                                                 "data_path": "data"
-                                                }}
+      context 'Update wit external url' do
+        before(:each) do
+          stub_request(:get, 'http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be').
+          to_return(:status => 200, :body => Oj.dump(data), :headers => {})
 
-        expect(status).to eq(200)
-        expect(json_main['message']).to                      eq('Dataset updated')
-        expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-        expect(Dataset.find(dataset_id).data).not_to         be_empty
-      end
+          stub_request(:get, 'http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json').
+          to_return(:status => 200, :body => Oj.dump(data_without_path), :headers => {})
+        end
 
-      it 'Allows to update dataset without data_path' do
-        post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
-                                                 "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json"
-                                                }}
+        it 'Allows to update dataset' do
+          post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
+                                                   "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be"
+                                                  }}
 
-        expect(status).to eq(200)
-        expect(json_main['message']).to                           eq('Dataset updated')
-        expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-        expect(Dataset.find(dataset_id).data).not_to         be_empty
-      end
+          expect(status).to eq(200)
+          expect(json_main['message']).to                      eq('Dataset updated')
+          expect(Dataset.find(dataset_id).data_columns).not_to be_empty
+          expect(Dataset.find(dataset_id).data).not_to         be_empty
+        end
 
-      it 'Allows to update dataset with data_path root_path' do
-        post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
-                                                 "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json",
-                                                 "data_path": "root_path"
-                                                }}
+        it 'Allows to update dataset without data_path' do
+          post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
+                                                   "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json"
+                                                  }}
 
-        expect(status).to eq(200)
-        expect(json_main['message']).to                           eq('Dataset updated')
-        expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-        expect(Dataset.find(dataset_id).data).not_to         be_empty
+          expect(status).to eq(200)
+          expect(json_main['message']).to                      eq('Dataset updated')
+          expect(Dataset.find(dataset_id).data_columns).not_to be_empty
+          expect(Dataset.find(dataset_id).data).not_to         be_empty
+        end
+
+        it 'Allows to update dataset with data_path root_path' do
+          post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
+                                                   "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json",
+                                                   "data_path": "root_path"
+                                                  }}
+
+          expect(status).to eq(200)
+          expect(json_main['message']).to                      eq('Dataset updated')
+          expect(Dataset.find(dataset_id).data_columns).not_to be_empty
+          expect(Dataset.find(dataset_id).data).not_to         be_empty
+        end
       end
 
       it 'Allows to overwrite dataset data with empty object' do
@@ -137,8 +158,8 @@ module V1
 
         expect(status).to eq(200)
         expect(json_main['message']).to                  eq('Dataset data replaced')
-        # expect(Dataset.find(dataset_id).data_columns).to eq({ "pcpuid": { "type": "string" }})
         expect(Dataset.find(dataset_id).data.size).to    eq(1)
+        expect(Dataset.find(dataset_id).reload.data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "data_id"=>{"type"=>"string"}})
       end
 
       it 'Allows to update dataset data' do
@@ -150,16 +171,16 @@ module V1
         expect(status).to eq(200)
         expect(json_main['message']).to                      eq('Dataset updated')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-        expect(Dataset.find(dataset_id).data.find_all { |d| d['data_id'] == "#{data_id}" }.to_s).to include '900001'
+        expect(Dataset.find(dataset_id).data.find_all { |d| d['data_id'] == "#{data_id}" }.to_s).to include('900001')
       end
 
       it 'Allows to delete dataset data' do
         delete "/datasets/#{dataset_id}/data/#{data_id}"
 
         expect(status).to eq(200)
-        expect(json_main['message']).to                           eq('Dataset data deleted')
+        expect(json_main['message']).to                      eq('Dataset data deleted')
         expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-        expect(Dataset.find(dataset_id).data.find_all { |d| d['data_id'] == "#{data_id}" }.to_s).not_to include '500001'
+        expect(Dataset.find(dataset_id).data.find_all { |d| d['data_id'] == "#{data_id}" }.to_s).not_to include('500001')
       end
 
       it 'Allows to update dataset with data' do
