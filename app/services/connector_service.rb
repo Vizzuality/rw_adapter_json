@@ -13,7 +13,7 @@ module ConnectorService
                end
 
       params = { dataset: { status: status } }
-      url    = URI.decode("#{Service::SERVICE_URL}/datasets/#{dataset_id}")
+      url    = URI.decode("#{Service::SERVICE_URL}/dataset/#{dataset_id}")
 
       @c = Curl::Easy.http_put(URI.escape(url), Oj.dump(params)) do |curl|
         curl.headers['Accept']         = 'application/json'
