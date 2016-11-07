@@ -8,7 +8,11 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-            "provider": "rwjson"
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
         },
         "endpoints": [{
             "method": "POST",
@@ -23,7 +27,11 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-            "provider": "rwjson"
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
         },
         "endpoints": [{
             "method": "POST",
