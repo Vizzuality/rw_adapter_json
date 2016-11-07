@@ -135,6 +135,19 @@ module V1
           }
         }
 
+        let!(:query_5) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?outFields=(*)&tableName=data&resultRecordCount=1&supportsPagination=true"
+              },
+              "relationships": {}
+            }
+          }
+        }
+
         before(:each) do
           stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20*%20from%20data%20where%20cartodb_id%20%3E=%20'2'%20and%20cartodb_id%20!=%20'4'%20and%20pcpuid%20between%20'350659'%20and%20'9506590'").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
@@ -151,6 +164,10 @@ module V1
           stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20cartodb_id,pcpuid%20from%20data%20where%20cartodb_id%20in%20('1','2','4','5')%20and%20pcpuid%20between%20'350558'%20and%20'9506590'%20order%20by%20pcpuid%20DESC").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_4), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20(*)%20from%20data%20limit%201").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_5), :headers => {})
         end
 
         it 'Allows access all available Json data with limit all' do
@@ -258,6 +275,15 @@ module V1
           expect(data[0]['cartodb_id']).to eq('1')
           expect(data[0]['pcpuid']).not_to be_nil
           expect(data[0]['the_geom']).to   be_nil
+        end
+
+        it 'Allows access Json data with sql limit 1' do
+          post "/query/#{dataset_id}?sql=select (*) from data limit 1", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data.size).to eq(1)
         end
       end
 
