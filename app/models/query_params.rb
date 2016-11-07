@@ -33,7 +33,9 @@ class QueryParams < Hash
     end
 
     def standard_limit(params)
-      if params.present?
+      if params['resultRecordCount'].present?
+        params['resultRecordCount']
+      elsif params.present?
         ['all']
       else
         [1]
