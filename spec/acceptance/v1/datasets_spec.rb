@@ -55,17 +55,17 @@ module V1
 
       let!(:params) {{"connector": {"dataset": {"data": {
                                   "id": "#{dataset_id}",
-                                  "name": "Json test api",
-                                  "data_path": "data",
-                                  "attributes_path": "fields",
-                                  "provider": "RwJson",
-                                  "format": "JSON",
-                                  "table_name": "data",
-                                  "meta": {
-                                    "status": "saved",
-                                    "updated_at": "2016-04-29T09:58:20.048Z",
-                                    "created_at": "2016-04-29T09:58:19.739Z"
-                                  }
+                                  "attributes": {"name": "Json test api",
+                                                                    "data_path": "data",
+                                                                    "attributes_path": "fields",
+                                                                    "provider": "RwJson",
+                                                                    "format": "JSON",
+                                                                    "table_name": "data",
+                                                                    "meta": {
+                                                                      "status": "saved",
+                                                                      "updated_at": "2016-04-29T09:58:20.048Z",
+                                                                      "created_at": "2016-04-29T09:58:19.739Z"
+                                                                    }}
                                 }}}}}
 
       context 'Without params' do
