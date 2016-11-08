@@ -44,11 +44,13 @@ class JsonConnector
                        end rescue []
 
       params['id'] = options['id']
-      params['data_columns'] = if params['data'].present? && options['data_columns'].blank?
-                                 params['data'][0]
-                               else
-                                 options['data_columns'].present? ? Oj.load(options['data_columns']) : nil
-                               end if method == 'build_dataset'
+      if method == 'build_dataset'
+        params['data_columns'] = if params['data'].present? && options['data_columns'].blank?
+                                   params['data'][0]
+                                 else
+                                   options['data_columns'].present? ? Oj.load(options['data_columns']) : nil
+                                 end
+      end
 
       params
     end
