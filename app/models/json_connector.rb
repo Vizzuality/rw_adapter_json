@@ -8,7 +8,7 @@ class JsonConnector
 
   def initialize(params)
     @dataset_params = if params[:connector].present? && params[:connector][:dataset].present?
-                        params[:connector][:dataset][:data]
+                        params[:connector][:dataset][:data].merge(params[:connector][:dataset][:data][:attributes])
                       else
                         params[:dataset] || params[:connector]
                       end
