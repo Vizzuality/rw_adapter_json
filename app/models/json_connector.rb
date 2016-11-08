@@ -7,7 +7,7 @@ class JsonConnector
   attr_reader :id, :table_name
 
   def initialize(params)
-    @dataset_params = params[:dataset] || params[:connector]
+    @dataset_params = params[:connector] || params[:dataset][:data]
     initialize_options
   end
 
