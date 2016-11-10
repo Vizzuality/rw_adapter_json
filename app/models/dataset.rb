@@ -12,8 +12,6 @@
 #
 
 class Dataset < ApplicationRecord
-  after_update_commit :update_data_columns, if: 'data.any? && data_columns[0].in?(data[0])'
-
   class << self
     def execute_data_query(sql_to_run)
       sql = sanitize_sql(sql_to_run)

@@ -27,7 +27,7 @@ class ConnectorSerializer < ApplicationSerializer
     end
 
     def clone_uri
-      "#{@uri['api_gateway_url']}/datasets/#{object.id}/clone"
+      "#{@uri['api_gateway_url']}/dataset/#{object.id}/clone"
     end
 
     def body_params

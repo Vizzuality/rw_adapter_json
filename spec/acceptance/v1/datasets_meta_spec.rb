@@ -83,26 +83,26 @@ module V1
         before(:each) do
           stub_request(:get, 'http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be').
           with(:headers => {'Accept' => 'application/json', 'Content-Type' => 'application/json'}).
-          to_return(:status => 200, :body => Oj.dump(data), :headers => {})
+          to_return(status: 200, body: Oj.dump(data), headers: {})
         end
 
         it 'Allows to create json dataset' do
           post '/datasets', params: external_params
 
           expect(status).to eq(201)
-          expect(json_main['message']).to                      eq('Dataset created')
-          expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-          expect(Dataset.find(dataset_id).data).not_to         be_empty
+          expect(json_main['message']).to                  eq('Dataset created')
+          expect(Dataset.find(dataset_id).data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
+          expect(Dataset.find(dataset_id).data).not_to     be_empty
         end
       end
 
-      context 'Update wit external url' do
+      context 'Update with external url' do
         before(:each) do
           stub_request(:get, 'http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be').
-          to_return(:status => 200, :body => Oj.dump(data), :headers => {})
+          to_return(status: 200, body: Oj.dump(data), headers: {})
 
           stub_request(:get, 'http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json').
-          to_return(:status => 200, :body => Oj.dump(data_without_path), :headers => {})
+          to_return(status: 200, body: Oj.dump(data_without_path), headers: {})
         end
 
         it 'Allows to update dataset' do
@@ -122,9 +122,9 @@ module V1
                                                   }}
 
           expect(status).to eq(200)
-          expect(json_main['message']).to                      eq('Dataset updated')
-          expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-          expect(Dataset.find(dataset_id).data).not_to         be_empty
+          expect(json_main['message']).to                  eq('Dataset updated')
+          expect(Dataset.find(dataset_id).data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
+          expect(Dataset.find(dataset_id).data).not_to     be_empty
         end
 
         it 'Allows to update dataset with data_path root_path' do

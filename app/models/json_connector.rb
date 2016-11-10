@@ -4,10 +4,11 @@ require 'oj'
 class JsonConnector
   extend ActiveModel::Naming
   include ActiveModel::Serialization
+  include HashFinder
   attr_reader :id, :table_name
 
   def initialize(params)
-    @dataset_params = if params[:connector].present? && params[:connector][:dataset].present?
+    @dataset_params = if params[:connector].present? && params[:connector].to_unsafe_hash.recursive_has_key?(:attributes)
                         params[:connector][:dataset][:data].merge(params[:connector][:dataset][:data][:attributes].to_unsafe_hash)
                       else
                         params[:dataset] || params[:connector]
@@ -69,6 +70,10 @@ class JsonConnector
         ActiveRecord::Base.connection.execute(query)
         sleep_connection unless Rails.env.test?
       end
+      dataset = Dataset.find(dataset_id)
+      if dataset.data_columns.present? && dataset.data_columns.in?(dataset.data)
+        dataset.update_data_columns
+      end
     end
 
     def build_dataset(options)
@@ -100,7 +105,6 @@ class JsonConnector
 
       if dataset.update(params_for_update)
         concatenate_data(dataset.id, params)
-        dataset.update_data_columns if dataset.data_columns.present?
       end
       dataset
     end
