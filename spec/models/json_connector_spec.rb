@@ -95,6 +95,15 @@ RSpec.describe JsonConnector, type: :model do
     options['data']    = Oj.dump({ "the_geom": "update geom" })
     options
   }
+
+  let!(:options_update_data_2) {
+    options = {}
+    options['id']      = dataset_id
+    options['data_id'] = 'fd2a6bab-5697-404b-9cf9-5905bba17712'
+    options['data']    = Oj.dump({ "the_geom": "first update geom" })
+    options
+  }
+
   let!(:options_delete_data) {
     options = {}
     options['id']      = dataset_id
@@ -127,7 +136,23 @@ RSpec.describe JsonConnector, type: :model do
     JsonConnector.update_data_object(options_update_data)
     dataset = Dataset.find(dataset_id)
     expect(dataset.data.count).to          eq(5)
-    expect(dataset.data[0]['the_geom']).to eq('update geom')
+    expect(dataset.data[0]['the_geom']).to eq('0101000020E610000000000000786515410000000078651541')
+    expect(dataset.data[1]['the_geom']).to eq('0101000020E6100000000000000C671541000000000C671541')
+    expect(dataset.data[2]['the_geom']).to eq('0101000020E6100000000000000C611D41000000000C611D41')
+    expect(dataset.data[3]['the_geom']).to eq('0101000020E610000000000000B056FD4000000000B056FD40')
+    expect(dataset.data[4]['the_geom']).to eq('update geom')
+    expect(dataset.data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
+  end
+
+  it 'Update dataset update specific data object' do
+    JsonConnector.update_data_object(options_update_data_2)
+    dataset = Dataset.find(dataset_id)
+    expect(dataset.data.count).to          eq(5)
+    expect(dataset.data[0]['the_geom']).to eq('0101000020E6100000000000000C671541000000000C671541')
+    expect(dataset.data[1]['the_geom']).to eq('0101000020E6100000000000000C611D41000000000C611D41')
+    expect(dataset.data[2]['the_geom']).to eq('0101000020E610000000000000B056FD4000000000B056FD40')
+    expect(dataset.data[3]['the_geom']).to eq('0101000020E610000000000000806EF84000000000806EF840')
+    expect(dataset.data[4]['the_geom']).to eq('first update geom')
     expect(dataset.data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
   end
 

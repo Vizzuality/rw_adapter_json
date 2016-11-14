@@ -110,24 +110,33 @@ class JsonConnector
     end
 
     def update_data_object(options)
-      dataset      = Dataset.find(options['id'])
-      dataset_data = dataset.data
-      data         = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
+      dataset        = Dataset.find(options['id'])
+      dataset_id     = dataset.id
+      dataset_data   = dataset.data
+      data_to_update = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
+      data_index     = dataset_data.index(data_to_update[0])
 
-      data = data.each_index do |i|
-               data[i].merge!(Oj.load(options['data']))
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb - #{data_index} WHERE  id = ?", dataset_id])
+      ActiveRecord::Base.connection.execute(query)
+
+      data = data_to_update.each_index do |i|
+               data_to_update[i].merge!(Oj.load(options['data']))
              end
 
-      new_data = dataset_data.delete_if { |d| d['data_id'] == options['data_id'] }
-      new_data = new_data.inject(data, :<<)
-      dataset.update(data: new_data)
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{data.to_json}' WHERE  id = ?", dataset_id])
+      ActiveRecord::Base.connection.execute(query)
       dataset
     end
 
     def delete_data_object(options)
-      dataset  = Dataset.find(options['id'])
-      new_data = dataset.data.delete_if { |d| d['data_id'] == options['data_id'] }
-      dataset.update(data: new_data)
+      dataset        = Dataset.find(options['id'])
+      dataset_id     = dataset.id
+      dataset_data   = dataset.data
+      data_to_delete = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
+      data_index     = dataset_data.index(data_to_delete[0])
+
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb - #{data_index} WHERE  id = ?", dataset_id])
+      ActiveRecord::Base.connection.execute(query)
       dataset
     end
   end
