@@ -115,9 +115,7 @@ class JsonConnector
       dataset_data   = dataset.data
       data_to_update = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
       data_index     = dataset_data.index(data_to_update[0])
-
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb - #{data_index} WHERE  id = ?", dataset_id])
-      ActiveRecord::Base.connection.execute(query)
+      delete_specific_data(data_index, dataset_id)
 
       data = data_to_update.each_index do |i|
                data_to_update[i].merge!(Oj.load(options['data']))
@@ -132,12 +130,15 @@ class JsonConnector
       dataset        = Dataset.find(options['id'])
       dataset_id     = dataset.id
       dataset_data   = dataset.data
-      data_to_delete = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
-      data_index     = dataset_data.index(data_to_delete[0])
+      data_to_update = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
+      data_index     = dataset_data.index(data_to_update[0])
+      delete_specific_data(data_index, dataset_id)
+      dataset
+    end
 
+    def delete_specific_data(data_index, dataset_id)
       query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb - #{data_index} WHERE  id = ?", dataset_id])
       ActiveRecord::Base.connection.execute(query)
-      dataset
     end
   end
 
