@@ -18,6 +18,21 @@
         }]
       },
       {
+        "url": "/query/:dataset",
+        "method": "POST",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "provider": "rwjson"
+        },
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "http://192.168.99.100:3010",
+            "path": "/query/:dataset",
+            "data": ["dataset"]
+        }]
+      },
+      {
         "url": "/fields/:dataset",
         "method": "GET",
         "paramProvider": "dataset",
