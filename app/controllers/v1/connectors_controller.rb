@@ -98,7 +98,7 @@ module V1
 
       def set_uri
         @uri = {}
-        @uri['api_gateway_url'] = ENV['API_GATEWAY_URL'] if ENV['API_GATEWAY_URL'].present?
+        @uri['api_gateway_url'] = Service::SERVICE_URL
         @uri['full_path']       = request.fullpath
         @uri
       end
