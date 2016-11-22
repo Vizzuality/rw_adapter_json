@@ -61,6 +61,6 @@ class Dataset < ApplicationRecord
     end
 
     def clear_cache
-      Rails.cache.delete_matched("*results_#{self.id}*")
+      Rails.cache.delete_matched("*results_#{self.id}*") if Rails.cache.read("*results_#{self.id}*").present?
     end
 end
