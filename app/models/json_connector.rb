@@ -17,8 +17,22 @@ class JsonConnector
   end
 
   def data(options = {})
-    get_data = JsonService.new(@id, options)
-    get_data.connect_data
+    cache_options  = "results_#{self.id}"
+    cache_options += "_#{options}" if options.present?
+
+    if results = Rails.cache.read(cache_key(cache_options))
+      results
+    else
+      get_data = JsonService.new(@id, options)
+      results  = get_data.connect_data
+
+      Rails.cache.write(cache_key(cache_options), results.to_a)
+    end
+    results
+  end
+
+  def cache_key(cache_options)
+    "query_#{ cache_options }"
   end
 
   def data_columns
