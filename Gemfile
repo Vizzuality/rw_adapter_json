@@ -43,6 +43,7 @@ end
 gem 'puma'
 gem 'redis', '~> 3.2'
 gem 'redis-namespace'
+gem 'redis-rails'
 gem 'rack-cors'
 gem 'rack-attack'
 gem 'sidekiq'

@@ -12,6 +12,8 @@
 #
 
 class Dataset < ApplicationRecord
+  after_save :clear_cache
+
   class << self
     def execute_data_query(sql_to_run)
       sql = sanitize_sql(sql_to_run)
@@ -56,5 +58,9 @@ class Dataset < ApplicationRecord
         )
         select * from types;
       SQL
+    end
+
+    def clear_cache
+      Rails.cache.delete_matched("*results_#{self.id}*")
     end
 end
