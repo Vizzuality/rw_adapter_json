@@ -1,5 +1,5 @@
 prod:
-  image: vizzuality/rw_adapter_json:1.0.0${STAGING}
+  image: vizzuality/rw_adapter_json:2.1.0${STAGING}
   env_file: prod.env
 
   command: start
