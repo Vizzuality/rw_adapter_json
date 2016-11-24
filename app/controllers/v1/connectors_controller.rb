@@ -92,7 +92,7 @@ module V1
         @query_filter['groupByFieldsForStatistics'] = params[:groupByFieldsForStatistics] if params[:groupByFieldsForStatistics].present?
         @query_filter['outStatistics']              = params[:outStatistics]              if params[:outStatistics].present?
         @query_filter['statisticType']              = params[:statisticType]              if params[:statisticType].present?
-        # For convert endpoint checkSQL
+        # For convert endpoint sql2SQL
         @query_filter['sql']                        = params[:sql]                        if params[:sql].present?
       end
 
