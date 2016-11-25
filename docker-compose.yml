@@ -9,9 +9,10 @@ prod:
 
   dns: ${DNS_SERVER}
 
-  log_driver: 'gelf'
+  log_driver: "syslog"
   log_opt:
-    gelf-address: ${GELF_ADDRESS}
+    syslog-address: ${SYSLOG_ADDRESS}
+    tag: rw_adapter_json${STAGING}
 
   links:
     - redis
