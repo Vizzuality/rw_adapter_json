@@ -10,6 +10,7 @@ class QueryParams < Hash
       order:        params['orderByFields']              || nil,
       filter_where: params['where']                      || nil,
       group:        params['groupByFieldsForStatistics'] || nil,
+      count:        params['returnCountOnly']            || nil,
       limit:        params['limit']                      ||= standard_limit(params)
     }
 

@@ -49,7 +49,12 @@ class JsonService
       # LIMIT
       filter += Filters::Limit.apply_limit(@limit) if @limit.present? && !@limit.include?('all')
       begin
-        Dataset.execute_data_query(filter).to_ary
+        data = Dataset.execute_data_query(filter).to_a
+        if @count.present?
+          [{ count: data.size }]
+        else
+          data
+        end
       rescue => e
         error = Oj.dump({ error: [e.cause.to_s.split(' ').join(' ')] })
         Oj.load(error)
