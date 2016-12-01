@@ -136,6 +136,23 @@ module V1
           }
         }
 
+        let!(:query_5) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?returnCountOnly=true&tableName=data&where=iso in ('AUS')",
+                "fs": {
+                  "tableName": "data",
+                  "returnCountOnly": true
+                }
+              },
+              "relationships": {}
+            }
+          }
+        }
+
         before(:each) do
           stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20iso,sum(population)%20as%20population,year,avg(loss)%20as%20loss%20from%20data%20where%20iso%20in%20('AUS','ESP')%20group%20by%20iso,year%20order%20by%20iso").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
@@ -152,6 +169,10 @@ module V1
           stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20years,sum(population)%20from%20data%20group%20by%20year%20order%20by%20year%20ASC").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_4), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data%20where%20iso%20in%20('AUS')").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_5), :headers => {})
         end
 
         it 'Allows aggregate JSON data by one sum attribute and group by two attributes using FS' do
@@ -224,6 +245,15 @@ module V1
 
           expect(status).to eq(200)
           expect(data['error'][0]).to match("ERROR: column \"years\" does not exist")
+        end
+
+        it 'Select count' do
+          post "/query/#{dataset_id}?sql=select count(*) from data where iso in ('AUS')", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data[0]['count']).to eq(2)
         end
       end
     end
