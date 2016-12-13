@@ -9,7 +9,11 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-            "provider": "rwjson"
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
         },
         "endpoints": [{
             "method": "POST",
@@ -24,7 +28,11 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-          "provider": "rwjson"
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
         },
         "endpoints": [{
             "method": "POST",
@@ -39,7 +47,11 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-            "provider": "rwjson"
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
         },
         "endpoints": [{
             "method": "POST",
@@ -51,7 +63,6 @@
       {
         "url": "/json-datasets",
         "method": "POST",
-        "authenticated": true,
         "endpoints": [{
             "method": "POST",
             "baseUrl": "http://localhost:3010",
@@ -61,7 +72,6 @@
       {
         "url": "/json-datasets/:id",
         "method": "POST",
-        "authenticated": true,
         "endpoints": [{
             "method": "POST",
             "baseUrl": "http://localhost:3010",
@@ -71,7 +81,6 @@
       {
         "url": "/json-datasets/:id/data-overwrite",
         "method": "POST",
-        "authenticated": true,
         "endpoints": [{
             "method": "POST",
             "baseUrl": "http://localhost:3010",
@@ -81,7 +90,6 @@
       {
         "url": "/json-datasets/:id/data/:data_id",
         "method": "POST",
-        "authenticated": true,
         "endpoints": [{
             "method": "POST",
             "baseUrl": "http://localhost:3010",
@@ -91,7 +99,6 @@
       {
         "url": "/json-datasets/:id/data/:data_id",
         "method": "DELETE",
-        "authenticated": true,
         "endpoints": [{
             "method": "DELETE",
             "baseUrl": "http://localhost:3010",
@@ -101,7 +108,6 @@
       {
         "url": "/json-datasets/:id",
         "method": "DELETE",
-        "authenticated": true,
         "endpoints": [{
             "method": "DELETE",
             "baseUrl": "http://localhost:3010",
