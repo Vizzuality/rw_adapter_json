@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require File.expand_path('../boot', __FILE__)
 
 require "rails"
@@ -40,5 +41,10 @@ module RwAdapterJson
         controller_specs: true,
         request_specs: true
     end
+
+    config.host = ENV.fetch('REDIS_PORT_6379_TCP_ADDR') { 'localhost' }
+    config.port = ENV.fetch('REDIS_PORT_6379_TCP_PORT') { 6379        }
+
+    config.redis_url = "redis://#{config.host}:#{config.port}/0/cache"
   end
 end

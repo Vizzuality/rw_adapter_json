@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # == Schema Information
 #
 # Table name: service_settings
@@ -21,11 +22,11 @@ class ServiceSetting < ApplicationRecord
     end
 
     def auth_token
-      first.try(:token) || ENV['API_GATEWAY_TOKEN']
+      ENV['GATEWAY_TOKEN'] || first.try(:token)
     end
 
     def gateway_url
-      first.try(:url) || ENV['API_GATEWAY_URL']
+      ENV['GATEWAY_URL'] || first.try(:url)
     end
   end
 end

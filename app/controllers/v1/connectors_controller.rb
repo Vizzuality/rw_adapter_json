@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module V1
   class ConnectorsController < ApplicationController
     before_action :set_connector,    except: :info
@@ -39,7 +40,7 @@ module V1
 
     def overwrite
       begin
-        JsonConnector.overwrite_data_object(connector_params)
+        JsonConnector.overwrite_data(connector_params)
         success_notifier('saved', 'Dataset data replaced', 200)
       rescue
         fail_notifier(nil, 'Error replacing dataset')
@@ -91,13 +92,13 @@ module V1
         @query_filter['groupByFieldsForStatistics'] = params[:groupByFieldsForStatistics] if params[:groupByFieldsForStatistics].present?
         @query_filter['outStatistics']              = params[:outStatistics]              if params[:outStatistics].present?
         @query_filter['statisticType']              = params[:statisticType]              if params[:statisticType].present?
-        # For convert endpoint checkSQL
+        # For convert endpoint sql2SQL
         @query_filter['sql']                        = params[:sql]                        if params[:sql].present?
       end
 
       def set_uri
         @uri = {}
-        @uri['api_gateway_url'] = ENV['API_GATEWAY_URL'] if ENV['API_GATEWAY_URL'].present?
+        @uri['api_gateway_url'] = Service::SERVICE_URL
         @uri['full_path']       = request.fullpath
         @uri
       end
@@ -114,37 +115,14 @@ module V1
         params.require(:connector).permit!
       end
 
-      # def clone_url
-      #   data = {}
-      #   data['http_method'] = 'POST'
-      #   data['url']         = "#{URI.parse(clone_uri)}"
-      #   data['body']        = body_params
-      #   data
-      # end
-
-      def uri
-        "#{@uri['api_gateway_url']}#{@uri['full_path']}"
-      end
-
-      def clone_uri
-        "#{@uri['api_gateway_url']}/datasets/#{@dataset.id}/clone"
-      end
-
-      def body_params
-        {
-          "dataset" => {
-            "dataset_url" => "#{URI.parse(uri)}"
-          }
-        }
-      end
-
       def success_notifier(status, message, status_code)
         notify(@dataset.id, status)
         render json: { success: true, message: message }, status: status_code
       end
 
       def fail_notifier(status, message)
-        notify(@dataset.id)
+        dataset_id = @dataset.present? ? @dataset.id : params['id']
+        notify(dataset_id)
         render json: { success: false, message: message }, status: 422
       end
   end

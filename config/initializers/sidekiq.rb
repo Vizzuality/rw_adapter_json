@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 host = ENV.fetch('REDIS_PORT_6379_TCP_ADDR') { 'localhost' }
 port = ENV.fetch('REDIS_PORT_6379_TCP_PORT') { 6379 }
 

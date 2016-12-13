@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Filters
   class Select
     class << self
@@ -7,7 +8,7 @@ module Filters
         filter = 'WITH t AS (select'
 
         self_attributes(dataset_id).each_index do |i|
-          filter += ',' if i > 0
+          filter += ',' if i.positive?
           filter += " jsonb_array_elements(data) ->> '#{self_attributes(dataset_id)[i]}' as #{self_attributes(dataset_id)[i]}"
         end
 
@@ -20,7 +21,7 @@ module Filters
 
           to_aggr.each_index do |i|
             as_aggr[i] = func_aggr[i] if as_aggr[i].blank?
-            filter += ',' if i > 0
+            filter += ',' if i.positive?
             filter += " #{func_aggr[i]}(#{to_aggr[i]}::float) as #{as_aggr[i]}"
           end
         end
@@ -28,7 +29,7 @@ module Filters
         to_select = to_select.delete_if { |p| p.in? to_aggr } if aggr_by.present? && aggr_func.present?
 
         to_select.each_index do |i|
-          filter += ',' if i > 0 || to_aggr.present?
+          filter += ',' if i.positive? || to_aggr.present?
           filter += " #{to_select[i]}"
         end
 

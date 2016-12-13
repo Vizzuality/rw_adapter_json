@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class QueryParams < Hash
   def initialize(params)
     sanitized_params = {
@@ -9,6 +10,7 @@ class QueryParams < Hash
       order:        params['orderByFields']              || nil,
       filter_where: params['where']                      || nil,
       group:        params['groupByFieldsForStatistics'] || nil,
+      count:        params['returnCountOnly']            || nil,
       limit:        params['limit']                      ||= standard_limit(params)
     }
 
@@ -32,7 +34,9 @@ class QueryParams < Hash
     end
 
     def standard_limit(params)
-      if params.present?
+      if params['resultRecordCount'].present?
+        params['resultRecordCount']
+      elsif params.present?
         ['all']
       else
         [1]

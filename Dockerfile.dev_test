@@ -1,4 +1,4 @@
-FROM ruby:2.3.0-alpine
+FROM ruby:2.3.1-alpine
 MAINTAINER Sebastian Schkudlara "sebastian.schkudlara@vizzuality.com"
 
 ENV BUILD_PACKAGES bash curl-dev build-base libxml2-dev libxslt-dev postgresql-dev
