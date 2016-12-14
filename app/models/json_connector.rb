@@ -77,12 +77,14 @@ class JsonConnector
 
     def concatenate_data(dataset_id, params, date=nil)
       full_data = params['data']
-      full_data = full_data.map { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
       full_data = full_data.reject(&:nil?).freeze
       full_data
 
       full_data.in_groups_of(5000).each do |group|
         group = group.reject(&:nil?)
+        group = group.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
+        group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
+        group
         query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = ?", dataset_id])
         ActiveRecord::Base.connection.execute(query)
         sleep_connection unless Rails.env.test?
@@ -142,7 +144,8 @@ class JsonConnector
       data = data_to_update.each_index do |i|
                data_to_update[i].merge!(Oj.load(options['data']))
              end
-      data = data.map { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
+      data = data.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
+      data = data.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
 
       query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{data.to_json}' WHERE  id = ?", dataset_id])
       ActiveRecord::Base.connection.execute(query)
