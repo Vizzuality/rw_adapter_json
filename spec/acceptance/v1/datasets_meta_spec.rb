@@ -24,31 +24,41 @@ module V1
                       "pcpuid": "350558",
                       "the_geom": "0101000020E610000000000000786515410000000078651541",
                       "cartodb_id": 2,
-                      "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17712"
+                      "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17712",
+                      "start_date": Time.now,
+                      "end_date": Time.now + 1.days
                     },
                     {
                       "pcpuid": "350659",
                       "the_geom": "0101000020E6100000000000000C671541000000000C671541",
                       "cartodb_id": 3,
-                      "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17713"
+                      "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17713",
+                      "start_date": Time.now,
+                      "end_date": Time.now + 1.days
                     },
                     {
                       "pcpuid": "481347",
                       "the_geom": "0101000020E6100000000000000C611D41000000000C611D41",
                       "cartodb_id": 4,
-                      "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17714"
+                      "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17714",
+                      "start_date": Time.now,
+                      "end_date": Time.now + 1.days
                     },
                     {
                       "pcpuid": "120171",
                       "the_geom": "0101000020E610000000000000B056FD4000000000B056FD40",
                       "cartodb_id": 5,
-                      "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17715"
+                      "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17715",
+                      "start_date": Time.now,
+                      "end_date": Time.now + 1.days
                     },
                     {
                       "pcpuid": "500001",
                       "the_geom": "0101000020E610000000000000806EF84000000000806EF840",
                       "cartodb_id": 1,
-                      "data_id": data_id
+                      "data_id": data_id,
+                      "start_date": Time.now,
+                      "end_date": Time.now + 1.days
                   }]}
 
       let!(:data_without_path) {
@@ -57,7 +67,8 @@ module V1
 
       let!(:params) {{"connector": {
                       "data_columns": Oj.dump(data_columns),
-                      "data": Oj.dump(data)
+                      "data": Oj.dump(data),
+                      "legend": {"long": "123", "lat": "123", "country": "pais", "region": "barrio", "date": ["start_date", "end_date"]}
                     }}}
 
       let!(:external_params) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
@@ -77,6 +88,8 @@ module V1
 
         expect(status).to eq(201)
         expect(json_main['message']).to eq('Dataset created')
+        expect(Dataset.last.reload.data[0]['start_date']).to eq(Time.now.to_datetime.iso8601)
+        expect(Dataset.last.reload.data[0]['end_date']).to   eq((Time.now + 1.days).to_datetime.iso8601)
       end
 
       context 'Create JSON dataset from external json' do

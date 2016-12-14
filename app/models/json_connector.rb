@@ -75,8 +75,9 @@ class JsonConnector
       sleep 15
     end
 
-    def concatenate_data(dataset_id, params)
-      full_data  = params['data']
+    def concatenate_data(dataset_id, params, date=nil)
+      full_data = params['data']
+      full_data = full_data.map { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
 
       full_data.reject(&:nil?).in_groups_of(5000).each do |group|
         group = group.reject(&:nil?)
@@ -91,12 +92,13 @@ class JsonConnector
     end
 
     def build_dataset(options)
-      params = build_params(options, 'build_dataset')
+      params            = build_params(options, 'build_dataset')
       params_for_create = params.except('data').merge(data: [])
-      dataset = Dataset.new(params_for_create)
+      dataset           = Dataset.new(params_for_create)
+      date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
       if dataset.save
-        concatenate_data(dataset.id, params)
+        concatenate_data(dataset.id, params, date)
       end
       dataset
     end
