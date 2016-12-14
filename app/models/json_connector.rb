@@ -78,8 +78,10 @@ class JsonConnector
     def concatenate_data(dataset_id, params, date=nil)
       full_data = params['data']
       full_data = full_data.map { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
+      full_data = full_data.reject(&:nil?).freeze
+      full_data
 
-      full_data.reject(&:nil?).in_groups_of(5000).each do |group|
+      full_data.in_groups_of(5000).each do |group|
         group = group.reject(&:nil?)
         query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = ?", dataset_id])
         ActiveRecord::Base.connection.execute(query)
@@ -107,9 +109,10 @@ class JsonConnector
       dataset           = Dataset.find(options['id'])
       params            = build_params(options, 'update_dataset')
       params_for_update = params.except('data')
+      date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
       if dataset.update(params_for_update)
-        concatenate_data(dataset.id, params) if params['data'].present?
+        concatenate_data(dataset.id, params, date) if params['data'].present?
       end
       dataset
     end
@@ -118,9 +121,10 @@ class JsonConnector
       dataset           = Dataset.find(options['id'])
       params            = build_params(options, 'build_dataset')
       params_for_update = params.except('data').merge(data: [])
+      date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
       if dataset.update(params_for_update)
-        concatenate_data(dataset.id, params)
+        concatenate_data(dataset.id, params, date)
       end
       dataset
     end
@@ -131,11 +135,14 @@ class JsonConnector
       dataset_data   = dataset.data
       data_to_update = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
       data_index     = dataset_data.index(data_to_update[0])
+      date           = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
+
       delete_specific_data(data_index, dataset_id)
 
       data = data_to_update.each_index do |i|
                data_to_update[i].merge!(Oj.load(options['data']))
              end
+      data = data.map { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
 
       query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{data.to_json}' WHERE  id = ?", dataset_id])
       ActiveRecord::Base.connection.execute(query)
