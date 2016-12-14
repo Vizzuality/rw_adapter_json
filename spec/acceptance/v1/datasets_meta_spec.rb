@@ -26,7 +26,8 @@ module V1
                       "cartodb_id": 2,
                       "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17712",
                       "start_date": Time.now,
-                      "end_date": Time.now + 1.days
+                      "end_date": Time.now + 1.days,
+                      "special_string": "L'Este"
                     },
                     {
                       "pcpuid": "350659",
@@ -34,7 +35,8 @@ module V1
                       "cartodb_id": 3,
                       "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17713",
                       "start_date": Time.now,
-                      "end_date": Time.now + 1.days
+                      "end_date": Time.now + 1.days,
+                      "special_string": "L'Este"
                     },
                     {
                       "pcpuid": "481347",
@@ -42,7 +44,8 @@ module V1
                       "cartodb_id": 4,
                       "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17714",
                       "start_date": Time.now,
-                      "end_date": Time.now + 1.days
+                      "end_date": Time.now + 1.days,
+                      "special_string": "L'Este"
                     },
                     {
                       "pcpuid": "120171",
@@ -50,7 +53,8 @@ module V1
                       "cartodb_id": 5,
                       "data_id": "fd2a6bab-5697-404b-9cf9-5905bba17715",
                       "start_date": Time.now,
-                      "end_date": Time.now + 1.days
+                      "end_date": Time.now + 1.days,
+                      "special_string": "L'Este"
                     },
                     {
                       "pcpuid": "500001",
@@ -58,7 +62,8 @@ module V1
                       "cartodb_id": 1,
                       "data_id": data_id,
                       "start_date": Time.now,
-                      "end_date": Time.now + 1.days
+                      "end_date": Time.now + 1.days,
+                      "special_string": "L'Este"
                   }]}
 
       let!(:data_without_path) {
