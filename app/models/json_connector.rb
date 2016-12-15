@@ -17,17 +17,19 @@ class JsonConnector
   end
 
   def data(options = {})
-    cache_options  = "results_#{self.id}"
-    cache_options += "_#{options}" if options.present?
+    # cache_options  = "results_#{self.id}"
+    # cache_options += "_#{options}" if options.present?
 
-    if results = Rails.cache.read(cache_key(cache_options))
-      results
-    else
-      get_data = JsonService.new(@id, options)
-      results  = get_data.connect_data
+    # if results = Rails.cache.read(cache_key(cache_options))
+    #   results
+    # else
+    #   get_data = JsonService.new(@id, options)
+    #   results  = get_data.connect_data
 
-      Rails.cache.write(cache_key(cache_options), results.to_a) if results.present?
-    end
+    #   Rails.cache.write(cache_key(cache_options), results.to_a) if results.present?
+    # end
+    get_data = JsonService.new(@id, options)
+    results  = get_data.connect_data
     results
   end
 
@@ -36,11 +38,13 @@ class JsonConnector
   end
 
   def data_columns
-    Dataset.find(@id).try(:data_columns)
+    dataset = Dataset.select(:id, :data_columns).where(id: @id).first
+    dataset.try(:data_columns)
   end
 
   def data_horizon
-    Dataset.find(@id).try(:data_horizon)
+    dataset = Dataset.select(:id, :data_horizon).where(id: @id).first
+    dataset.try(:data_horizon)
   end
 
   class << self
@@ -108,7 +112,7 @@ class JsonConnector
     end
 
     def update_dataset(options)
-      dataset           = Dataset.find(options['id'])
+      dataset           = Dataset.select(:id, :data_columns, :data_horizon).where(id: options['id']).first
       params            = build_params(options, 'update_dataset')
       params_for_update = params.except('data')
       date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?

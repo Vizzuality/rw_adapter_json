@@ -34,7 +34,8 @@ class JsonService
     end
 
     def index_query
-      Dataset.find(@id).data
+      # Dataset.find(@id).data
+      Dataset.select(:id).where(id: options['id']).first.data
     end
 
     def options_query
