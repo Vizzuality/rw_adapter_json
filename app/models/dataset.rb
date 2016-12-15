@@ -12,7 +12,7 @@
 #
 
 class Dataset < ApplicationRecord
-  after_save :clear_cache
+  # after_save :clear_cache
 
   class << self
     def execute_data_query(sql_to_run)
@@ -31,8 +31,9 @@ class Dataset < ApplicationRecord
   end
 
   def update_data_columns
-    self.update_attributes(data_columns: Hash[ActiveRecord::Base.connection.execute(update_meta_data).
+    self.update(data_columns: Hash[ActiveRecord::Base.connection.execute(update_meta_data).
                                                                  map { |v| [v['key'], { type: v['type'] }] }])
+    ActiveRecord::Base.clear_reloadable_connections!
   end
 
   private
