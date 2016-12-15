@@ -72,7 +72,7 @@ class JsonConnector
 
     def sleep_connection
       ActiveRecord::Base.clear_reloadable_connections!
-      sleep 15
+      sleep 1
     end
 
     def concatenate_data(dataset_id, params, date=nil)
@@ -80,7 +80,7 @@ class JsonConnector
       full_data = full_data.reject(&:nil?).freeze
       full_data
 
-      full_data.in_groups_of(5000).each do |group|
+      full_data.in_groups_of(1000).each do |group|
         group = group.reject(&:nil?)
         group = group.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
         group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
@@ -88,10 +88,6 @@ class JsonConnector
         query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = ?", dataset_id])
         ActiveRecord::Base.connection.execute(query)
         sleep_connection unless Rails.env.test?
-      end
-      dataset = Dataset.find(dataset_id)
-      if dataset.data_columns.present? && dataset.data_columns.in?(dataset.data)
-        dataset.update_data_columns
       end
     end
 
@@ -103,6 +99,10 @@ class JsonConnector
 
       if dataset.save
         concatenate_data(dataset.id, params, date)
+        dataset = Dataset.select(:id, :data_columns).where(id: dataset.id).first
+        if dataset.data_columns.present? && options['data_columns'].blank?
+          dataset.update_data_columns
+        end
       end
       dataset
     end
@@ -120,13 +120,16 @@ class JsonConnector
     end
 
     def overwrite_data(options)
-      dataset           = Dataset.find(options['id'])
+      dataset           = Dataset.select(:id, :data_columns).where(id: options['id']).first
       params            = build_params(options, 'build_dataset')
       params_for_update = params.except('data').merge(data: [])
       date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
       if dataset.update(params_for_update)
         concatenate_data(dataset.id, params, date)
+        if dataset.data_columns.present? && options['data_columns'].blank?
+          dataset.update_data_columns
+        end
       end
       dataset
     end
