@@ -77,7 +77,7 @@ module V1
       end
 
       def set_dataset
-        @dataset = Dataset.find(params[:id])
+        @dataset = Dataset.select(:id).where(id: params[:id]).first
       end
 
       def set_query_filter
