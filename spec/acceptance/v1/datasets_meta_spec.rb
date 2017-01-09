@@ -79,6 +79,14 @@ module V1
       let!(:external_params) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
                                              "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be"
                              }}}
+      let!(:external_params_with_path) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17752",
+                                             "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28bf",
+                                             "data_path": "rows"
+                                       }}}
+      let!(:external_params_with_third_path) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17753",
+                                                   "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28bg",
+                                                   "data_path": "data,rows,data_to_extract"
+                                             }}}
 
       let!(:dataset) {
         dataset = Dataset.create!(data: data, data_columns: data_columns)
@@ -93,8 +101,8 @@ module V1
 
         expect(status).to eq(201)
         expect(json_main['message']).to eq('Dataset created')
-        expect(Dataset.last.reload.data[0]['start_date']).to eq(Time.now.to_datetime.iso8601)
-        expect(Dataset.last.reload.data[0]['end_date']).to   eq((Time.now + 1.days).to_datetime.iso8601)
+        expect(Dataset.last.reload.data[0]['start_date'].to_date.iso8601).to eq(Time.now.to_date.iso8601)
+        expect(Dataset.last.reload.data[0]['end_date'].to_date.iso8601).to   eq((Time.now + 1.days).to_date.iso8601)
       end
 
       context 'Create JSON dataset from external json' do
@@ -102,10 +110,36 @@ module V1
           stub_request(:get, 'http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be').
           with(:headers => {'Accept' => 'application/json', 'Content-Type' => 'application/json'}).
           to_return(status: 200, body: Oj.dump(data), headers: {})
+
+          stub_request(:get, 'http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28bf').
+          with(:headers => {'Accept' => 'application/json', 'Content-Type' => 'application/json'}).
+          to_return(status: 200, body: Oj.dump('{"rows": "#{data}"}'), headers: {})
+
+          stub_request(:get, 'http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28bg').
+          with(:headers => {'Accept' => 'application/json', 'Content-Type' => 'application/json'}).
+          to_return(status: 200, body: "{\"data\": { \"rows\": {\"data_to_extract\": #{data.to_json}}}}", headers: {})
         end
 
         it 'Allows to create json dataset' do
           post '/datasets', params: external_params
+
+          expect(status).to eq(201)
+          expect(json_main['message']).to                  eq('Dataset created')
+          expect(Dataset.find(dataset_id).data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
+          expect(Dataset.find(dataset_id).data).not_to     be_empty
+        end
+
+        it 'Allows to create json dataset' do
+          post '/datasets', params: external_params_with_path
+
+          expect(status).to eq(201)
+          expect(json_main['message']).to                  eq('Dataset created')
+          expect(Dataset.find(dataset_id).data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
+          expect(Dataset.find(dataset_id).data).not_to     be_empty
+        end
+
+        it 'Allows to create json dataset with deep data array' do
+          post '/datasets', params: external_params_with_third_path
 
           expect(status).to eq(201)
           expect(json_main['message']).to                  eq('Dataset created')
@@ -165,7 +199,7 @@ module V1
 
         expect(status).to eq(200)
         expect(json_main['message']).to                  eq('Dataset data replaced')
-        expect(Dataset.find(dataset_id).data_columns).to be_nil
+        expect(Dataset.find(dataset_id).data_columns).to eq({})
         expect(Dataset.find(dataset_id).data).to         eq([])
       end
 

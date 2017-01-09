@@ -1,5 +1,9 @@
 # frozen_string_literal: true
+require 'curb'
+require 'typhoeus'
+require 'uri'
 require 'oj'
+require 'yajl'
 
 class JsonConnector
   extend ActiveModel::Naming
@@ -17,17 +21,6 @@ class JsonConnector
   end
 
   def data(options = {})
-    # cache_options  = "results_#{self.id}"
-    # cache_options += "_#{options}" if options.present?
-
-    # if results = Rails.cache.read(cache_key(cache_options))
-    #   results
-    # else
-    #   get_data = JsonService.new(@id, options)
-    #   results  = get_data.connect_data
-
-    #   Rails.cache.write(cache_key(cache_options), results.to_a) if results.present?
-    # end
     get_data = JsonService.new(@id, options)
     results  = get_data.connect_data
     results
@@ -53,14 +46,12 @@ class JsonConnector
       data_path   = options['data_path']     if options['data_path'].present?
       params = {}
       data = if options['connector_url'].present? && options['data'].blank?
-               ConnectorService.connect_to_provider(dataset_url, data_path)
+               ConnectorService.connect_to_provider(dataset_url, data_path, method)
              else
                Oj.load(options['data']) if options['data']
              end
 
-      params['data'] = data.each_index do |i|
-                         data[i].merge!(data_id: SecureRandom.uuid) if data[i]['data_id'].blank?
-                       end rescue []
+      params['data'] = data || []
 
       params['id'] = options['id']
       if method == 'build_dataset'
@@ -75,24 +66,51 @@ class JsonConnector
     end
 
     def sleep_connection
-      ActiveRecord::Base.clear_reloadable_connections!
-      sleep 1
+      GC.start(full_mark: false, immediate_sweep: false)
     end
 
     def concatenate_data(dataset_id, params, date=nil)
-      full_data = params['data']
-      full_data = full_data.reject(&:nil?).freeze
-      full_data
+      if params['data'].is_a?(Hash) && params['data'].key?(:file_name)
+        full_data = YAJI::Parser.new(File.open("#{params['data'][:file_name]}"))
+        if params['data'][:path].present?
+          path  = params['data'][:path][0].to_s
+          path += [params['data'][:path][1]].to_s if params['data'][:path][1].present?
+          path += [params['data'][:path][2]].to_s if params['data'][:path][2].present?
+          path += [params['data'][:path][3]].to_s if params['data'][:path][3].present?
+        else
+          path = '/'
+        end
+        full_data.each("/#{path}/") do |group|
+          group = [group]
+          build_data(dataset_id, group, date)
+        end
+        File.delete("#{params['data'][:file_name]}") if File.exist?("#{params['data'][:file_name]}")
+      else
+        full_data = params['data']
+        full_data = full_data.reject(&:nil?).freeze
+        full_data
 
-      full_data.in_groups_of(1000).each do |group|
-        group = group.reject(&:nil?)
-        group = group.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
-        group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
-        group
-        query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = ?", dataset_id])
-        ActiveRecord::Base.connection.execute(query)
-        sleep_connection unless Rails.env.test?
+        full_data.in_groups_of(1000).each do |group|
+          group = group.reject(&:nil?)
+          build_data(dataset_id, group, date)
+        end
       end
+    end
+
+    def build_data(dataset_id, group, date)
+      group = group.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date)  } } if date.present?
+      group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
+      group = group.map! { |data| data['data_id'].blank? ? data.merge!(data_id: SecureRandom.uuid) : data           }
+      group
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = ?", dataset_id])
+      ActiveRecord::Base.connection.execute(query)
+      sleep_connection unless Rails.env.test?
+    end
+
+    def concatenate_data_columns(dataset_id)
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data_columns=data::json->0 WHERE id = ?", dataset_id])
+      ActiveRecord::Base.connection.execute(query)
+      sleep_connection unless Rails.env.test?
     end
 
     def build_dataset(options)
@@ -104,7 +122,8 @@ class JsonConnector
       if dataset.save
         concatenate_data(dataset.id, params, date)
         dataset = Dataset.select(:id, :data_columns).where(id: dataset.id).first
-        if dataset.data_columns.present? && options['data_columns'].blank?
+        if options['data_columns'].blank?
+          concatenate_data_columns(dataset.id)
           dataset.update_data_columns
         end
       end
@@ -131,7 +150,8 @@ class JsonConnector
 
       if dataset.update(params_for_update)
         concatenate_data(dataset.id, params, date)
-        if dataset.data_columns.present? && options['data_columns'].blank?
+        if options['data_columns'].blank?
+          concatenate_data_columns(dataset.id)
           dataset.update_data_columns
         end
       end
