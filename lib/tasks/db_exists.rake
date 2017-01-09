@@ -15,5 +15,8 @@ namespace :db do
 
     pids_directory_name = 'tmp/pids'
     FileUtils.mkdir_p(pids_directory_name) unless File.exists?(pids_directory_name)
+
+    import_directory_name = 'tmp/import'
+    FileUtils.mkdir_p(import_directory_name) unless File.exists?(import_directory_name)
   end
 end
