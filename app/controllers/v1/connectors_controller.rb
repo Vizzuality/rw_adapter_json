@@ -10,20 +10,14 @@ module V1
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri
     end
 
-    # def create
-    #   begin
-    #     @dataset = JsonConnector.build_dataset(connector_params)
-    #     @dataset.save
-    #     success_notifier('saved', 'Dataset created', 201)
-    #   rescue
-    #     fail_notifier(nil, 'Error creating dataset')
-    #   end
-    # end
-
     def create
-      @dataset = JsonConnector.build_dataset(connector_params)
-      @dataset.save
-      success_notifier('saved', 'Dataset created', 201)
+      begin
+        @dataset = JsonConnector.build_dataset(connector_params)
+        @dataset.save
+        success_notifier('saved', 'Dataset created', 201)
+      rescue
+        fail_notifier(nil, 'Error creating dataset')
+      end
     end
 
     def update
