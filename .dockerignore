@@ -47,6 +47,7 @@ public/system
 public/spree
 public/uploads
 /public/system*
+!/tmp/import/.keep
 
 .idea/
 .sass-cache/

@@ -25,7 +25,7 @@ module ConnectorService
       @c.perform
     end
 
-    def connect_to_provider(connector_url, data_path)
+    def connect_to_provider(connector_url, data_path, method=nil)
       if integer? data_path
         path = data_path.to_i
       elsif data_path.include?('root_path')
@@ -42,16 +42,27 @@ module ConnectorService
 
       Typhoeus::Config.memoize = true
       hydra    = Typhoeus::Hydra.new max_concurrency: 100
-      @request = Typhoeus::Request.new(URI.escape(url), method: :get, headers: headers)
+      @request = Typhoeus::Request.new(URI.escape(url), method: :get, headers: headers, followlocation: true)
+
+      if method == 'build_dataset'
+        downloaded_file_name = "tmp/import/#{Time.now.to_s.parameterize}.json"
+        downloaded_file      = File.open(downloaded_file_name, 'wb')
+        @request.on_headers do |response|
+          if response.code != 200
+            raise 'Request failed'
+          end
+        end
+        @request.on_body do |chunk|
+          downloaded_file.write(chunk)
+        end
+      end
 
       @request.on_complete do |response|
+        downloaded_file.close if method == 'build_dataset'
         if response.success?
-          if path.present? && path_size.positive?
-            data  = response_processor(path, response)
-            data  = data[path[1]] if path[1].present?
-            data  = data[path[2]] if path[2].present?
-            data  = data[path[3]] if path[3].present?
-            @data = data
+          if method == 'build_dataset'
+            downloaded_file.close
+            @data = { file_name: downloaded_file_name, path: path, path_size: path_size }
           else
             parser = Yajl::Parser.new
             @data  = parser.parse(response.body.force_encoding(Encoding::UTF_8))
@@ -67,25 +78,6 @@ module ConnectorService
       hydra.queue @request
       hydra.run
       @data
-    end
-
-    def response_processor(path, response)
-      batch      = []
-      batch_size = 10000
-      parser     = YAJI::Parser.new(response.body.force_encoding(Encoding::UTF_8))
-      data_set   = []
-
-      parser.each("/#{path[0]}/") do |obj|
-        batch << obj
-        if batch.size >= batch_size
-          data_set = data_set | batch
-          batch    = []
-        end
-      end
-      if batch.size <= batch_size
-        data_set = data_set | batch
-      end
-      data_set
     end
 
     def integer?(str)
