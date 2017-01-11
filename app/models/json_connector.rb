@@ -96,7 +96,7 @@ class JsonConnector
         if group.size <= batch_size
           build_data(dataset_id, group, date)
         end
-        File.delete("tmp/import/#{dataset_id}.json")
+        File.delete("tmp/import/#{dataset_id}.json") if File.exist?("#{params['data'][:file_name]}")
       else
         full_data = params['data']
         full_data = full_data.reject(&:nil?).freeze
@@ -114,13 +114,12 @@ class JsonConnector
       group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
       group = group.map! { |data| data['data_id'].blank? ? data.merge!(data_id: SecureRandom.uuid) : data           }
       group
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = ?", dataset_id])
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{group.to_json}'::jsonb WHERE id = ?", dataset_id])
       ActiveRecord::Base.connection.execute(query)
-
     end
 
     def concatenate_data_columns(dataset_id)
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data_columns=data::json->0 WHERE id = ?", dataset_id])
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data_columns=data::jsonb->0 WHERE id = ?", dataset_id])
       ActiveRecord::Base.connection.execute(query)
       gc_rebuild
     end
