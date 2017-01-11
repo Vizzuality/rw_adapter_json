@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160616101718) do
+ActiveRecord::Schema.define(version: 20170110192706) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,8 +23,6 @@ ActiveRecord::Schema.define(version: 20160616101718) do
     t.integer  "data_horizon", default: 0
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
-    t.index ["data"], name: "index_datasets_on_data", using: :gin
-    t.index ["data_columns"], name: "index_datasets_on_data_columns", using: :gin
   end
 
   create_table "service_settings", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
@@ -34,7 +32,6 @@ ActiveRecord::Schema.define(version: 20160616101718) do
     t.boolean  "listener"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_service_settings_on_name", unique: true, using: :btree
   end
 
 end
