@@ -96,13 +96,13 @@ class JsonConnector
         full_data.each("/#{path}/") do |obj|
           group << obj.symbolize_keys!.each(&thunk)
           if group.size >= batch_size
-            build_data(dataset_id, group, date)
+            build_data(dataset_id, group, date, params)
             group = []
             gc_rebuild
           end
         end
         if group.size <= batch_size
-          build_data(dataset_id, group, date)
+          build_data(dataset_id, group, date, params)
           gc_rebuild
         end
         File.delete("tmp/import/#{dataset_id}.json") if File.exist?("#{params['data'][:file_name]}")
@@ -113,18 +113,25 @@ class JsonConnector
 
         full_data.in_groups_of(1000).each do |group|
           group = group.reject(&:nil?)
-          build_data(dataset_id, group, date)
+          build_data(dataset_id, group, date, params)
         end
       end
     end
 
-    def build_data(dataset_id, group, date)
+    def build_data(dataset_id, group, date, params)
       group = group.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date)                } } if date.present?
       group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´").gsub("?", "") if value.is_a?(String) } }
       group = group.map! { |data| data[:data_id].blank? ? data.merge!(data_id: SecureRandom.uuid) : data                          }
       group
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{group.to_json}'::jsonb WHERE id = ?", *dataset_id])
-      ActiveRecord::Base.connection.execute(query)
+      begin
+        ActiveRecord::Base.transaction do
+          query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{group.to_json}'::jsonb WHERE id = ?", *dataset_id])
+          ActiveRecord::Base.connection.execute(query)
+        end
+      rescue
+        gc_rebuild
+        File.delete("tmp/import/#{dataset_id}.json") if File.exist?("#{params['data'][:file_name]}")
+      end
     end
 
     def concatenate_data_columns(dataset_id)
