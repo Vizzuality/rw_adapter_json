@@ -7,7 +7,7 @@ module Filters
 
       to_order.each_index do |i|
         filter += ',' if i.positive?
-        order_attr = if to_order[i].include?('DESC') || to_order[i].include?('ASC')
+        order_attr = if to_order[i].downcase.include?('desc') || to_order[i].downcase.include?('asc')
                        "#{to_order[i]}"
                      else
                        "#{to_order[i]} ASC"

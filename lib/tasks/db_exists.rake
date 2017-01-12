@@ -18,5 +18,9 @@ namespace :db do
 
     import_directory_name = 'tmp/import'
     FileUtils.mkdir_p(import_directory_name) unless File.exists?(import_directory_name)
+
+    if File.exists?(import_directory_name)
+      system 'rm tmp/import/*'
+    end
   end
 end

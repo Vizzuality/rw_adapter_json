@@ -6,6 +6,7 @@ require 'oj'
 module QueryService
   class << self
     def connect_to_query_service(sql_params=nil)
+      # #{Service::SERVICE_URL} http://staging-api.globalforestwatch.org
       url = URI.decode("#{Service::SERVICE_URL}/convert/sql2FS?sql=#{sql_params}")
 
       headers = {}

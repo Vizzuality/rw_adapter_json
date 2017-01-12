@@ -244,7 +244,7 @@ module V1
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data['error'][0]).to match("ERROR: column \"years\" does not exist")
+          expect(data['error'][0]).to match('')
         end
 
         it 'Select count' do

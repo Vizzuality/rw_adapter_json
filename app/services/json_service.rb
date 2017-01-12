@@ -51,6 +51,7 @@ class JsonService
       filter += Filters::Limit.apply_limit(@limit) if @limit.present? && !@limit.include?('all')
       begin
         data = Dataset.execute_data_query(filter).to_a
+        # SELECT jsonb_array_length(datasets.data) from datasets;
         if @count.present?
           [{ count: data.size }]
         else

@@ -25,7 +25,7 @@ module ConnectorService
       @c.perform
     end
 
-    def connect_to_provider(connector_url, data_path, method=nil)
+    def connect_to_provider(connector_url, data_path, method=nil, dataset_id=nil)
       if integer? data_path
         path = data_path.to_i
       elsif data_path.include?('root_path')
@@ -45,7 +45,7 @@ module ConnectorService
       @request = Typhoeus::Request.new(URI.escape(url), method: :get, headers: headers, followlocation: true)
 
       if method == 'build_dataset'
-        downloaded_file_name = "tmp/import/#{Time.now.to_s.parameterize}.json"
+        downloaded_file_name = "tmp/import/#{dataset_id}.json"
         downloaded_file      = File.open(downloaded_file_name, 'wb')
         @request.on_headers do |response|
           if response.code != 200
