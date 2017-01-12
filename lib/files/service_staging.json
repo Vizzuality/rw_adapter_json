@@ -8,6 +8,7 @@
         "method": "GET",
         "paramProvider": "dataset",
         "dataProvider": "dataset",
+        "binary": true,
         "filters":{
           "data": {
               "attributes": {
@@ -27,6 +28,7 @@
         "method": "POST",
         "paramProvider": "dataset",
         "dataProvider": "dataset",
+        "binary": true,
         "filters":{
           "data": {
               "attributes": {
