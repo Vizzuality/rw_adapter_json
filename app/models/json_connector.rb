@@ -87,13 +87,14 @@ class JsonConnector
           path += [params['data'][:path][1]].to_s if params['data'][:path][1].present?
           path += [params['data'][:path][2]].to_s if params['data'][:path][2].present?
           path += [params['data'][:path][3]].to_s if params['data'][:path][3].present?
+          path = "/#{path}/"
         else
           path = '/'
         end
         group = []
         batch_size = FLUSH_EVERY
 
-        full_data.each("/#{path}/") do |obj|
+        full_data.each("#{path}") do |obj|
           group << obj.symbolize_keys!.each(&thunk)
           if group.size >= batch_size
             build_data(dataset_id, group, date, params)
