@@ -11,7 +11,7 @@ class JsonConnector
   include HashFinder
   attr_reader :id, :table_name
 
-  FLUSH_EVERY = 100
+  FLUSH_EVERY = 500
 
   def initialize(params)
     @dataset_params = if params[:connector].present? && params[:connector].to_unsafe_hash.recursive_has_key?(:attributes)
@@ -68,11 +68,18 @@ class JsonConnector
     end
 
     def gc_rebuild
-      ActiveRecord::Base.connection.close
       GC.start(full_mark: false, immediate_sweep: false)
     end
 
     def concatenate_data(dataset_id, params, date=nil)
+      thunk = lambda do |key,value|
+        case value
+        when String then value.strip!
+        when Hash   then value.each(&thunk)
+        when Array  then value.each { |vv| vv.strip! }
+        end
+      end
+
       if params['data'].is_a?(Hash) && params['data'].key?(:file_name)
         full_data = YAJI::Parser.new(File.open("#{params['data'][:file_name]}"))
         if params['data'][:path].present?
@@ -87,14 +94,16 @@ class JsonConnector
         batch_size = FLUSH_EVERY
 
         full_data.each("/#{path}/") do |obj|
-          group << obj
+          group << obj.symbolize_keys!.each(&thunk)
           if group.size >= batch_size
             build_data(dataset_id, group, date)
             group = []
+            gc_rebuild
           end
         end
         if group.size <= batch_size
           build_data(dataset_id, group, date)
+          gc_rebuild
         end
         File.delete("tmp/import/#{dataset_id}.json") if File.exist?("#{params['data'][:file_name]}")
       else
@@ -110,11 +119,11 @@ class JsonConnector
     end
 
     def build_data(dataset_id, group, date)
-      group = group.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date)  } } if date.present?
-      group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
-      group = group.map! { |data| data['data_id'].blank? ? data.merge!(data_id: SecureRandom.uuid) : data           }
+      group = group.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date)                } } if date.present?
+      group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´").gsub("?", "") if value.is_a?(String) } }
+      group = group.map! { |data| data[:data_id].blank? ? data.merge!(data_id: SecureRandom.uuid) : data                          }
       group
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{group.to_json}'::jsonb WHERE id = ?", dataset_id])
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{group.to_json}'::jsonb WHERE id = ?", *dataset_id])
       ActiveRecord::Base.connection.execute(query)
     end
 
@@ -185,7 +194,7 @@ class JsonConnector
       data = data.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
       data = data.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
 
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{data.to_json}' WHERE  id = ?", dataset_id])
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{data.to_json}'::jsonb WHERE id = ?", *dataset_id])
       ActiveRecord::Base.connection.execute(query)
       dataset
     end
@@ -201,7 +210,7 @@ class JsonConnector
     end
 
     def delete_specific_data(data_index, dataset_id)
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb - #{data_index} WHERE  id = ?", dataset_id])
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb - #{data_index} WHERE id = ?", dataset_id])
       ActiveRecord::Base.connection.execute(query)
     end
   end
