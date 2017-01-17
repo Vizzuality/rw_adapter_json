@@ -61,7 +61,12 @@ module V1
                   }]}
 
       let!(:dataset) {
-        dataset = Dataset.create!(data: data, data_columns: data_columns)
+        dataset = Dataset.create!(data_columns: data_columns)
+        dataset.data_values.create(data: data[0])
+        dataset.data_values.create(data: data[1])
+        dataset.data_values.create(data: data[2])
+        dataset.data_values.create(data: data[3])
+        dataset.data_values.create(data: data[4])
         dataset
       }
 
@@ -145,6 +150,61 @@ module V1
                 "query": "?returnCountOnly=true&tableName=data&where=iso in ('AUS')",
                 "fs": {
                   "tableName": "data",
+                  "where": "iso in ('AUS')",
+                  "returnCountOnly": true
+                }
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        let!(:query_6) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?returnCountOnly=true&tableName=data",
+                "fs": {
+                  "tableName": "data",
+                  "returnCountOnly": true
+                }
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        let!(:query_7) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?returnCountOnly=true&tableName=data&groupByFieldsForStatistics=iso",
+                "fs": {
+                  "tableName": "data",
+                  "groupByFieldsForStatistics": "iso",
+                  "returnCountOnly": true
+                }
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        let!(:query_8) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?returnCountOnly=true&tableName=data&where=iso in ('AUS') and year > 2012&groupByFieldsForStatistics=year",
+                "fs": {
+                  "tableName": "data",
+                  "groupByFieldsForStatistics": "year",
+                  "where": "iso in ('AUS') and year > 2012",
                   "returnCountOnly": true
                 }
               },
@@ -173,6 +233,18 @@ module V1
           stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data%20where%20iso%20in%20('AUS')").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_5), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_6), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data%20group%20by%20iso").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_7), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data%20where%20iso%20in%20(%27AUS%27)%20and%20year%20>%202012%20group%20by%20year").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_8), :headers => {})
         end
 
         it 'Allows aggregate JSON data by one sum attribute and group by two attributes using FS' do
@@ -219,9 +291,9 @@ module V1
           expect(status).to eq(200)
           expect(data.length).to    eq(2)
           expect(data[0]['iso']).to eq('AUS')
-          expect(data[0]['max']).to eq(2500)
+          expect(data[0]['population']).to eq(2500)
           expect(data[1]['iso']).to eq('ESP')
-          expect(data[1]['max']).to eq(500)
+          expect(data[1]['population']).to eq(500)
         end
 
         it 'Allows aggregate JSON data by one sum attribute and group by one attribute using SQL' do
@@ -248,12 +320,41 @@ module V1
         end
 
         it 'Select count' do
+          post "/query/#{dataset_id}?sql=select count(*) from data", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data[0]['count']).to eq(5)
+        end
+
+        it 'Select count with where' do
           post "/query/#{dataset_id}?sql=select count(*) from data where iso in ('AUS')", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
           expect(data[0]['count']).to eq(2)
+        end
+
+        it 'Select count with two where' do
+          post "/query/#{dataset_id}?sql=select count(*) from data where iso in ('AUS') and year > 2012 group by year", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data[0]['count']).to eq(1)
+          expect(data[1]['count']).to eq(1)
+        end
+
+        it 'Select count with group by' do
+          post "/query/#{dataset_id}?sql=select count(*) from data group by iso", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data[0]['count']).to eq(3)
+          expect(data[1]['count']).to eq(2)
         end
       end
     end

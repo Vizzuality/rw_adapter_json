@@ -35,28 +35,22 @@ class JsonService
 
     def index_query
       # Dataset.find(@id).data
-      Dataset.select(:id).where(id: options['id']).first.data
+      Dataset.select(:id).where(id: options['id']).first.data_values.first
     end
 
     def options_query
       # SELECT .. FROM data
-      filter = Filters::Select.apply_select(@id, @select, @aggr_func, @aggr_by, @aggr_as, @group)
+      filter = Filters::Select.apply_select(@id, @select, @aggr_func, @aggr_by, @aggr_as, @group, @count)
       # WHERE
-      filter += Filters::FilterWhere.apply_where(@filter_where) if @filter_where.present?
+      filter += Filters::FilterWhere.apply_where(@filter_where, @count) if @filter_where.present?
       # GROUP BY
-      filter += Filters::GroupBy.apply_group_by(@group) if @group.present?
+      filter += Filters::GroupBy.apply_group_by(@group, @count) if @group.present?
       # ORDER BY
       filter += Filters::Order.apply_order(@order) if @order.present?
       # LIMIT
       filter += Filters::Limit.apply_limit(@limit) if @limit.present? && !@limit.include?('all')
       begin
-        data = Dataset.execute_data_query(filter).to_a
-        # SELECT jsonb_array_length(datasets.data) from datasets;
-        if @count.present?
-          [{ count: data.size }]
-        else
-          data
-        end
+        Dataset.execute_data_query(filter).to_a
       rescue => e
         error = Oj.dump({ error: [e.cause.to_s.split(' ').join(' ')] })
         Oj.load(error)

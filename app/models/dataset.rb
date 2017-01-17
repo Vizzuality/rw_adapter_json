@@ -14,6 +14,8 @@
 class Dataset < ApplicationRecord
   # after_save :clear_cache
 
+  has_many :data_values
+
   class << self
     def execute_data_query(sql_to_run)
       sql = sanitize_sql(sql_to_run)
