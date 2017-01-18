@@ -2,7 +2,6 @@ require 'acceptance_helper'
 
 module V1
   describe 'Datasets', type: :request do
-    fixtures :service_settings
 
     context 'For specific dataset' do
       let!(:data_columns) {{
