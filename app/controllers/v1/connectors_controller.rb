@@ -87,9 +87,7 @@ module V1
       end
 
       def set_data
-        @data = @connector.data(@query_filter).each do |data|
-                  data
-                end
+        @data = @connector.data(@query_filter)
       end
 
       def set_query_filter
