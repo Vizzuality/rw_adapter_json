@@ -2,7 +2,6 @@
 module V1
   class InfoController < ApplicationController
     def info
-      @service = ServiceSetting.save_gateway_settings(params)
         @docs = Oj.load(File.read("lib/files/service_#{ENV['RAILS_ENV']}.json"))
         render json: @docs
     end
