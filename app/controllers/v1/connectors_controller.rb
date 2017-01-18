@@ -87,7 +87,9 @@ module V1
       end
 
       def set_data
-        @data = @connector.data(@query_filter)
+        @data = @connector.data(@query_filter).each do |data|
+                  data
+                end
       end
 
       def set_query_filter
@@ -165,9 +167,9 @@ module V1
         return data if Rails.env.test?
         headers["Content-Disposition"] = 'inline'
         headers["Content-Type"]        = 'application/json; charset=utf-8'
-        headers["Content-Encoding"]    = 'deflate'
+        # headers["Content-Encoding"]    = 'deflate'
 
-        deflate = Zlib::Deflate.new
+        # deflate = Zlib::Deflate.new
 
         buffer = "{\n"
         buffer << '"cloneUrl": '
@@ -181,29 +183,34 @@ module V1
           buffer << JSON.pretty_generate(object, depth: 1)
 
           if (i % FLUSH_EVERY).zero?
-            write(deflate, buffer)
+            # write(deflate, buffer)
+            write(buffer)
             buffer = ""
           end
         end
 
         buffer << "\n]\n}\n"
 
-        write(deflate, buffer)
-        write(deflate, nil) # Flush deflate.
+        write(buffer)
+        # write(deflate, buffer)
+        # write(deflate, nil) # Flush deflate.
         response.stream.close
       end
 
-      def write(deflate, data)
-        deflated = deflate.deflate(data)
-        response.stream.write(deflated)
+      def write(data)
+        response.stream.write(data)
       end
 
+      # def write(deflate, data)
+      #   deflated = deflate.deflate(data)
+      #   response.stream.write(deflated)
+      # end
+
       def disable_gc
-        GC.disable
+        GC.start(full_mark: false, immediate_sweep: false)
       end
 
       def enable_gc
-        ActiveRecord::Base.connection.close
         response.stream.close
         GC.start(full_mark: false, immediate_sweep: false)
       end
