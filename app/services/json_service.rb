@@ -42,9 +42,9 @@ class JsonService
       # SELECT .. FROM data
       filter = Filters::Select.apply_select(@id, @select, @aggr_func, @aggr_by, @aggr_as, @group, @count)
       # WHERE
-      filter += Filters::FilterWhere.apply_where(@filter_where, @count) if @filter_where.present?
+      filter += Filters::FilterWhere.apply_where(@filter_where) if @filter_where.present?
       # GROUP BY
-      filter += Filters::GroupBy.apply_group_by(@group, @count) if @group.present?
+      filter += Filters::GroupBy.apply_group_by(@group) if @group.present?
       # ORDER BY
       filter += Filters::Order.apply_order(@order) if @order.present?
       # LIMIT

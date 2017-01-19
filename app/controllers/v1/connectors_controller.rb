@@ -8,12 +8,12 @@ module V1
     before_action :set_connector,    except: :info
     before_action :set_query_filter, except: :info
     before_action :set_uri,          except: :info
-    before_action :set_dataset,      only: [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
+    before_action :set_dataset,      only:  [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
     before_action :set_data,         only:   :show
     after_action  :enable_gc,        only:   :show
 
     def show
-      render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri, data: @data
+      render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri, data: stream_data_array(@data)
     end
 
     def create

@@ -179,6 +179,25 @@ module V1
           }
         }
 
+        let!(:query_6) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?returnCountOnly=true&outFields=year&tableName=data&groupByFieldsForStatistics=year",
+                "fs": {
+                  "tableName": "data",
+                  "outFields": "year",
+                  "groupByFieldsForStatistics": "year",
+                  "returnCountOnly": true
+                }
+              },
+              "relationships": {}
+            }
+          }
+        }
+
         before(:each) do
           stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data%20where%20iso%20in%20('AUS')").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
@@ -199,6 +218,10 @@ module V1
           stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(year)%20from%20data%20group%20by%20iso,year").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_5), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20year,count(*)%20from%20data%20group%20by%20year").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_6), :headers => {})
         end
 
         it 'Select count' do
@@ -244,10 +267,23 @@ module V1
           data = json['data']
 
           expect(status).to eq(200)
-          # expect(data).to eq(1)
           expect(data[0]['count']).to eq(1)
           expect(data[1]['count']).to eq(3)
           expect(data[2]['count']).to eq(1)
+        end
+
+        it 'Select year count with group by year' do
+          post "/query/#{dataset_id}?sql=select year,count(*) from data group by year", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data[0]['count']).to eq(1)
+          expect(data[0]['year']).to eq('2011')
+          expect(data[1]['count']).to eq(1)
+          expect(data[1]['year']).to eq('2013')
+          expect(data[2]['count']).to eq(3)
+          expect(data[2]['year']).to eq('2014')
         end
       end
     end
