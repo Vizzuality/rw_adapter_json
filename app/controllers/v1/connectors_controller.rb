@@ -13,7 +13,7 @@ module V1
     after_action  :enable_gc,        only:   :show
 
     def show
-      render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri, data: stream_data_array(@data)
+      render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri, data: @data
     end
 
     def create
