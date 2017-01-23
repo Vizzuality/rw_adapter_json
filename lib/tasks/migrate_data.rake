@@ -12,7 +12,7 @@ namespace :migrate do
   desc 'Migrate data from data array to values'
   task data: :environment do
     puts 'Migrate Dataset values...'
-    Dataset.all.each_with_index do |dataset, i|
+    Dataset.where.not(data_horizon: 3).each_with_index do |dataset, i|
       data = YAJI::Parser.new(dataset.data.to_json)
       data.each("/") do |obj|
         unless DataValue.select(:id).where(id: obj['data_id']).first.present?
