@@ -47,7 +47,12 @@ module V1
                   }]}
 
       let!(:dataset) {
-        dataset = Dataset.create!(data: data, data_columns: data_columns)
+        dataset = Dataset.create!(data_columns: data_columns)
+        dataset.data_values.create(data: data[0])
+        dataset.data_values.create(data: data[1])
+        dataset.data_values.create(data: data[2])
+        dataset.data_values.create(data: data[3])
+        dataset.data_values.create(data: data[4])
         dataset
       }
 

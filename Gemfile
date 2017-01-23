@@ -5,6 +5,7 @@ ruby '2.3.1'
 
 gem 'rails', '~> 5.0.0', '< 5.1'
 
+gem 'activerecord-import'
 gem 'pg', '~> 0.18'
 
 gem 'active_model_serializers', '~> 0.10.2'
