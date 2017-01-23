@@ -42,7 +42,7 @@ namespace :id_fixes do
     DataValue.all.each do |data_value|
       if data_value.id != data_value.data['data_id']
         ActiveRecord::Base.transaction do
-          query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE data_values SET data=data::jsonb || {'data_id': '#{data_value.id}'}::jsonb"])
+          query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE data_values SET data=data::jsonb || '{\"data_id\": \"#{data_value.id}\"}'::jsonb WHERE id = ?", *data_value.id])
           ActiveRecord::Base.connection.execute(query)
         end
       end
