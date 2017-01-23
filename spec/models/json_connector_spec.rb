@@ -59,7 +59,8 @@ RSpec.describe JsonConnector, type: :model do
                          }}}
 
   let!(:dataset) {
-    dataset = Dataset.create!(data: data, data_columns: data_columns)
+    dataset = Dataset.create!(data_columns: data_columns)
+    dataset.data_values.create(id: 'fd2a6bab-5697-404b-9cf9-5905bba17719', data: data.last)
     dataset
   }
 
@@ -67,99 +68,75 @@ RSpec.describe JsonConnector, type: :model do
 
   let!(:options_build) {
     options = {}
-    options['id']           = 'fd2a6bab-5697-404b-9cf9-5905bba17711'
-    options['data']         = Oj.dump(data)
+    options['id']           = 'fd2a6bab-5697-404b-9cf9-5905bba17755'
     options['data_columns'] = Oj.dump(data_columns)
+    options['data']         = Oj.dump(data)
     options
   }
 
   let!(:options_update) {
     options = {}
     options['id']           = dataset_id
-    options['data']         = Oj.dump(data)
     options['data_columns'] = Oj.dump(data_columns)
+    options['data']         = Oj.dump(data)
     options
   }
 
   let!(:options_overwrite) {
     options = {}
-    options['id']           = dataset_id
-    options['data']         = Oj.dump([{ "my_new_key": "Data overwrite" }])
+    options['id']   = dataset_id
+    options['data'] = Oj.dump([{ "my_new_key": "Data overwrite" }])
     options
   }
 
   let!(:options_update_data) {
     options = {}
     options['id']      = dataset_id
-    options['data_id'] = data_id
+    options['data_id'] = 'fd2a6bab-5697-404b-9cf9-5905bba17719'
     options['data']    = Oj.dump({ "the_geom": "update geom" })
-    options
-  }
-
-  let!(:options_update_data_2) {
-    options = {}
-    options['id']      = dataset_id
-    options['data_id'] = 'fd2a6bab-5697-404b-9cf9-5905bba17712'
-    options['data']    = Oj.dump({ "the_geom": "first update geom" })
     options
   }
 
   let!(:options_delete_data) {
     options = {}
     options['id']      = dataset_id
-    options['data_id'] = data_id
+    options['data_id'] = 'fd2a6bab-5697-404b-9cf9-5905bba17719'
     options
   }
 
   it 'Build dataset' do
     JsonConnector.build_dataset(options_build)
-    dataset = Dataset.find('fd2a6bab-5697-404b-9cf9-5905bba17711')
-    expect(dataset.data.count).to   eq(5)
+    dataset = Dataset.find('fd2a6bab-5697-404b-9cf9-5905bba17755')
+    expect(dataset.data_values.count).to  eq(5)
     expect(dataset.data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
   end
 
   it 'Update dataset concatenate data' do
     JsonConnector.update_dataset(options_update)
     dataset = Dataset.find(dataset_id)
-    expect(dataset.data.count).to   eq(10)
+    expect(dataset.data_values.size).to eq(6)
     expect(dataset.data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
   end
 
   it 'Overwrite dataset data' do
     JsonConnector.overwrite_data(options_overwrite)
     dataset = Dataset.find(dataset_id)
-    expect(dataset.data.count).to   eq(1)
+    expect(dataset.data_values.size).to eq(1)
     expect(dataset.data_columns).to eq({"data_id"=>{"type"=>"string"}, "my_new_key"=>{"type"=>"string"}})
   end
 
   it 'Update dataset update specific data object' do
     JsonConnector.update_data_object(options_update_data)
     dataset = Dataset.find(dataset_id)
-    expect(dataset.data.count).to          eq(5)
-    expect(dataset.data[0]['the_geom']).to eq('0101000020E610000000000000786515410000000078651541')
-    expect(dataset.data[1]['the_geom']).to eq('0101000020E6100000000000000C671541000000000C671541')
-    expect(dataset.data[2]['the_geom']).to eq('0101000020E6100000000000000C611D41000000000C611D41')
-    expect(dataset.data[3]['the_geom']).to eq('0101000020E610000000000000B056FD4000000000B056FD40')
-    expect(dataset.data[4]['the_geom']).to eq('update geom')
-    expect(dataset.data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
-  end
-
-  it 'Update dataset update specific data object' do
-    JsonConnector.update_data_object(options_update_data_2)
-    dataset = Dataset.find(dataset_id)
-    expect(dataset.data.count).to          eq(5)
-    expect(dataset.data[0]['the_geom']).to eq('0101000020E6100000000000000C671541000000000C671541')
-    expect(dataset.data[1]['the_geom']).to eq('0101000020E6100000000000000C611D41000000000C611D41')
-    expect(dataset.data[2]['the_geom']).to eq('0101000020E610000000000000B056FD4000000000B056FD40')
-    expect(dataset.data[3]['the_geom']).to eq('0101000020E610000000000000806EF84000000000806EF840')
-    expect(dataset.data[4]['the_geom']).to eq('first update geom')
+    expect(dataset.data_values.size).to eq(1)
+    expect(dataset.data_values.pluck(:data).first['the_geom']).to eq('update geom')
     expect(dataset.data_columns).to eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
   end
 
   it 'Update dataset delete specific data object' do
     JsonConnector.delete_data_object(options_delete_data)
     dataset = Dataset.find(dataset_id)
-    expect(dataset.data.count).to      eq(4)
-    expect(dataset.data_columns).to    eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
+    expect(dataset.data_values.size).to eq(0)
+    expect(dataset.data_columns).to     eq({"pcpuid"=>{"type"=>"string"}, "the_geom"=>{"type"=>"geometry"}, "cartodb_id"=>{"type"=>"number"}, "the_geom_webmercator"=>{"type"=>"geometry"}})
   end
 end

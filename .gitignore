@@ -12,6 +12,7 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
+!/tmp/import/.keep
 
 # Ignore Byebug command history file.
 .byebug_history

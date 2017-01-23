@@ -35,12 +35,12 @@ class JsonService
 
     def index_query
       # Dataset.find(@id).data
-      Dataset.select(:id).where(id: options['id']).first.data
+      Dataset.select(:id).where(id: options['id']).first.data_values.first
     end
 
     def options_query
       # SELECT .. FROM data
-      filter = Filters::Select.apply_select(@id, @select, @aggr_func, @aggr_by, @aggr_as, @group)
+      filter = Filters::Select.apply_select(@id, @select, @aggr_func, @aggr_by, @aggr_as, @group, @count)
       # WHERE
       filter += Filters::FilterWhere.apply_where(@filter_where) if @filter_where.present?
       # GROUP BY
@@ -50,12 +50,7 @@ class JsonService
       # LIMIT
       filter += Filters::Limit.apply_limit(@limit) if @limit.present? && !@limit.include?('all')
       begin
-        data = Dataset.execute_data_query(filter).to_a
-        if @count.present?
-          [{ count: data.size }]
-        else
-          data
-        end
+        Dataset.execute_data_query(filter).to_a
       rescue => e
         error = Oj.dump({ error: [e.cause.to_s.split(' ').join(' ')] })
         Oj.load(error)

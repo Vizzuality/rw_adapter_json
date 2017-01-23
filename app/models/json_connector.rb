@@ -1,11 +1,17 @@
 # frozen_string_literal: true
+require 'curb'
+require 'typhoeus'
+require 'uri'
 require 'oj'
+require 'yajl'
 
 class JsonConnector
   extend ActiveModel::Naming
   include ActiveModel::Serialization
   include HashFinder
   attr_reader :id, :table_name
+
+  FLUSH_EVERY = 500
 
   def initialize(params)
     @dataset_params = if params[:connector].present? && params[:connector].to_unsafe_hash.recursive_has_key?(:attributes)
@@ -17,17 +23,6 @@ class JsonConnector
   end
 
   def data(options = {})
-    # cache_options  = "results_#{self.id}"
-    # cache_options += "_#{options}" if options.present?
-
-    # if results = Rails.cache.read(cache_key(cache_options))
-    #   results
-    # else
-    #   get_data = JsonService.new(@id, options)
-    #   results  = get_data.connect_data
-
-    #   Rails.cache.write(cache_key(cache_options), results.to_a) if results.present?
-    # end
     get_data = JsonService.new(@id, options)
     results  = get_data.connect_data
     results
@@ -53,45 +48,105 @@ class JsonConnector
       data_path   = options['data_path']     if options['data_path'].present?
       params = {}
       data = if options['connector_url'].present? && options['data'].blank?
-               ConnectorService.connect_to_provider(dataset_url, data_path)
+               ConnectorService.connect_to_provider(dataset_url, data_path, method, options['id'])
              else
                Oj.load(options['data']) if options['data']
              end
 
-      params['data'] = data.each_index do |i|
-                         data[i].merge!(data_id: SecureRandom.uuid) if data[i]['data_id'].blank?
-                       end rescue []
+      params['data'] = data || []
 
       params['id'] = options['id']
       if method == 'build_dataset'
         params['data_columns'] = if params['data'].present? && options['data_columns'].blank?
                                    params['data'][0]
                                  else
-                                   options['data_columns'].present? ? Oj.load(options['data_columns']) : nil
+                                   options['data_columns'].present? ? Oj.load(options['data_columns']) : {}
                                  end
       end
 
       params
     end
 
-    def sleep_connection
-      ActiveRecord::Base.clear_reloadable_connections!
-      sleep 1
+    def gc_rebuild
+      GC.start(full_mark: false, immediate_sweep: false)
     end
 
     def concatenate_data(dataset_id, params, date=nil)
-      full_data = params['data']
-      full_data = full_data.reject(&:nil?).freeze
-      full_data
+      thunk = lambda do |key,value|
+        case value
+        when String then value.strip!
+        when Hash   then value.each(&thunk)
+        when Array  then value.each { |vv| vv.strip! }
+        end
+      end
 
-      full_data.in_groups_of(1000).each do |group|
-        group = group.reject(&:nil?)
-        group = group.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
-        group = group.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
-        group
-        query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data || '#{group.to_json}' WHERE id = ?", dataset_id])
-        ActiveRecord::Base.connection.execute(query)
-        sleep_connection unless Rails.env.test?
+      group = []
+      batch_size = FLUSH_EVERY
+
+      if params['data'].is_a?(Hash) && params['data'].key?(:file_name)
+        full_data = YAJI::Parser.new(File.open("#{params['data'][:file_name]}"))
+        if params['data'][:path].present?
+          path  = params['data'][:path][0].to_s
+          path += "/#{params['data'][:path][1].to_s}" if params['data'][:path][1].present?
+          path += "/#{params['data'][:path][2].to_s}" if params['data'][:path][2].present?
+          path += "/#{params['data'][:path][3].to_s}" if params['data'][:path][3].present?
+          path = "/#{path}/"
+        else
+          path = '/'
+        end
+
+        full_data.each("#{path}") do |obj|
+          obj  = obj.symbolize_keys!.each(&thunk)
+          data = sanitize_data(obj, date)
+          group << DataValue.new(id: data['id'], dataset_id: dataset_id, data: data)
+          if group.size >= batch_size
+            DataValue.import group
+            group = []
+            gc_rebuild
+          end
+        end
+        if group.size <= batch_size
+          DataValue.import group
+          group = []
+          gc_rebuild
+        end
+        File.delete("tmp/import/#{dataset_id}.json") if File.exist?("#{params['data'][:file_name]}")
+      else
+        full_data = params['data']
+        full_data = full_data.reject(&:nil?).freeze
+        full_data
+
+        full_data.each do |obj|
+          obj  = obj.symbolize_keys!.each(&thunk)
+          data = sanitize_data(obj, date)
+          group << DataValue.new(id: data['id'], dataset_id: dataset_id, data: data)
+          if group.size >= batch_size
+            DataValue.import group
+            group = []
+            gc_rebuild
+          end
+        end
+        if group.size <= batch_size
+          DataValue.import group
+          group = []
+          gc_rebuild
+        end
+      end
+    end
+
+    def sanitize_data(obj, date)
+      obj = obj.each { |key,value| obj[key] = value.to_datetime.iso8601 if key.in?(date)                } if date.present?
+      obj = obj.each { |key,value| obj[key] = value.gsub("'", "´").gsub("?", "") if value.is_a?(String) }
+      obj = obj[:data_id].blank? ? obj.merge!(data_id: SecureRandom.uuid) : obj
+      obj
+    end
+
+    def concatenate_data_columns(dataset_id)
+      dataset = Dataset.select(:id, :data_columns, :data_horizon).where(id: dataset_id).first
+      if dataset.data_values.any?
+        first_data = dataset.data_values.first.data
+        dataset.update(data_columns: first_data)
+        gc_rebuild
       end
     end
 
@@ -103,8 +158,9 @@ class JsonConnector
 
       if dataset.save
         concatenate_data(dataset.id, params, date)
-        dataset = Dataset.select(:id, :data_columns).where(id: dataset.id).first
-        if dataset.data_columns.present? && options['data_columns'].blank?
+        dataset = Dataset.select(:id, :data_columns, :data_horizon).where(id: dataset.id).first
+        if options['data_columns'].blank?
+          concatenate_data_columns(dataset.id)
           dataset.update_data_columns
         end
       end
@@ -126,12 +182,14 @@ class JsonConnector
     def overwrite_data(options)
       dataset           = Dataset.select(:id, :data_columns).where(id: options['id']).first
       params            = build_params(options, 'build_dataset')
-      params_for_update = params.except('data').merge(data: [])
+      params_for_update = params.except('data')
       date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
       if dataset.update(params_for_update)
+        dataset.data_values.destroy_all
         concatenate_data(dataset.id, params, date)
-        if dataset.data_columns.present? && options['data_columns'].blank?
+        if options['data_columns'].blank?
+          concatenate_data_columns(dataset.id)
           dataset.update_data_columns
         end
       end
@@ -139,39 +197,22 @@ class JsonConnector
     end
 
     def update_data_object(options)
-      dataset        = Dataset.find(options['id'])
-      dataset_id     = dataset.id
-      dataset_data   = dataset.data
-      data_to_update = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
-      data_index     = dataset_data.index(data_to_update[0])
-      date           = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
+      dataset    = Dataset.select(:id, :data_columns, :data_horizon).where(id: options['id']).first
+      dataset_id = options['id']
+      data_id    = options['data_id']
+      data       = options['data']
 
-      delete_specific_data(data_index, dataset_id)
-
-      data = data_to_update.each_index do |i|
-               data_to_update[i].merge!(Oj.load(options['data']))
-             end
-      data = data.map! { |data| data.each { |key,value| data[key] = value.to_datetime.iso8601 if key.in?(date) } } if date.present?
-      data = data.map! { |data| data.each { |key,value| data[key] = value.gsub("'", "´") if value.is_a?(String) } }
-
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb || '#{data.to_json}' WHERE  id = ?", dataset_id])
+      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE data_values SET data=data::jsonb || '#{data}'::jsonb WHERE id = ? AND dataset_id = ?", *data_id, *dataset_id])
       ActiveRecord::Base.connection.execute(query)
       dataset
     end
 
     def delete_data_object(options)
-      dataset        = Dataset.find(options['id'])
-      dataset_id     = dataset.id
-      dataset_data   = dataset.data
-      data_to_update = dataset_data.find_all { |d| d['data_id'] == options['data_id'] }
-      data_index     = dataset_data.index(data_to_update[0])
-      delete_specific_data(data_index, dataset_id)
+      dataset    = Dataset.select(:id, :data_columns, :data_horizon).where(id: options['id']).first
+      data_id    = options['data_id']
+      data_value = DataValue.select(:id).where(id: data_id).first
+      data_value.destroy
       dataset
-    end
-
-    def delete_specific_data(data_index, dataset_id)
-      query = ActiveRecord::Base.send(:sanitize_sql_array, ["UPDATE datasets SET data=data::jsonb - #{data_index} WHERE  id = ?", dataset_id])
-      ActiveRecord::Base.connection.execute(query)
     end
   end
 
