@@ -1,10 +1,10 @@
 require 'acceptance_helper'
 
 module V1
-  describe 'Datasets AGG', type: :request do
+  describe 'Datasets COUNT', type: :request do
     fixtures :service_settings
 
-    context 'Aggregation for specific dataset' do
+    context 'Counters for specific dataset' do
       let!(:data_columns) {{
                             "iso": {
                               "type": "string"
@@ -95,7 +95,12 @@ module V1
               "type": "result",
               "id": "undefined",
               "attributes": {
-                "query": "?outFields=iso,year&outStatistics=[{\"onStatisticField\":\"population\",\"statisticType\":\"sum\",\"outStatisticFieldName\":\"population\"},{\"onStatisticField\":\"loss\",\"statisticType\":\"avg\",\"outStatisticFieldName\":\"loss\"}]&tableName=data&where=iso in ('AUS','ESP')&groupByFieldsForStatistics=iso,year&orderByFields=iso"
+                "query": "?returnCountOnly=true&tableName=data&where=iso in ('AUS')",
+                "fs": {
+                  "tableName": "data",
+                  "where": "iso in ('AUS')",
+                  "returnCountOnly": true
+                }
               },
               "relationships": {}
             }
@@ -108,7 +113,11 @@ module V1
               "type": "result",
               "id": "undefined",
               "attributes": {
-                "query": "?outFields=iso&outStatistics=[{\"onStatisticField\":\"population\",\"statisticType\":\"max\"}]&tableName=data&where=iso in ('ESP','AUS')&groupByFieldsForStatistics=iso&orderByFields=iso"
+                "query": "?returnCountOnly=true&tableName=data",
+                "fs": {
+                  "tableName": "data",
+                  "returnCountOnly": true
+                }
               },
               "relationships": {}
             }
@@ -121,7 +130,12 @@ module V1
               "type": "result",
               "id": "undefined",
               "attributes": {
-                "query": "?outFields=year&outStatistics=[{\"onStatisticField\":\"population\",\"statisticType\":\"sum\",\"outStatisticFieldName\":\"population\"}]&tableName=data&groupByFieldsForStatistics=year&orderByFields=year ASC"
+                "query": "?returnCountOnly=true&tableName=data&groupByFieldsForStatistics=iso",
+                "fs": {
+                  "tableName": "data",
+                  "groupByFieldsForStatistics": "iso",
+                  "returnCountOnly": true
+                }
               },
               "relationships": {}
             }
@@ -134,7 +148,50 @@ module V1
               "type": "result",
               "id": "undefined",
               "attributes": {
-                "query": "?outFields=years&outStatistics=[{\"onStatisticField\":\"population\",\"statisticType\":\"sum\"}]&tableName=data&groupByFieldsForStatistics=year&orderByFields=year ASC"
+                "query": "?returnCountOnly=true&tableName=data&where=iso in ('AUS') and year > '2012'&groupByFieldsForStatistics=year",
+                "fs": {
+                  "tableName": "data",
+                  "groupByFieldsForStatistics": "year",
+                  "where": "iso in ('AUS') and year > '2012'",
+                  "returnCountOnly": true
+                }
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        let!(:query_5) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?returnCountOnly=true&tableName=data&groupByFieldsForStatistics=iso,year",
+                "fs": {
+                  "tableName": "data",
+                  "groupByFieldsForStatistics": "iso,year",
+                  "returnCountOnly": true
+                }
+              },
+              "relationships": {}
+            }
+          }
+        }
+
+        let!(:query_6) {
+          {
+            "data": {
+              "type": "result",
+              "id": "undefined",
+              "attributes": {
+                "query": "?returnCountOnly=true&outFields=year&tableName=data&groupByFieldsForStatistics=year",
+                "fs": {
+                  "tableName": "data",
+                  "outFields": "year",
+                  "groupByFieldsForStatistics": "year",
+                  "returnCountOnly": true
+                }
               },
               "relationships": {}
             }
@@ -142,93 +199,91 @@ module V1
         }
 
         before(:each) do
-          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20iso,sum(population)%20as%20population,year,avg(loss)%20as%20loss%20from%20data%20where%20iso%20in%20('AUS','ESP')%20group%20by%20iso,year%20order%20by%20iso").
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data%20where%20iso%20in%20('AUS')").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_1), :headers => {})
 
-          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20iso,max(population)%20from%20data%20where%20iso%20in%20('ESP','AUS')%20group%20by%20iso%20order%20by%20iso").
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_2), :headers => {})
 
-          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20year,sum(population)%20as%20population%20from%20data%20group%20by%20year%20order%20by%20year%20ASC").
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data%20group%20by%20iso").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_3), :headers => {})
 
-          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20years,sum(population)%20from%20data%20group%20by%20year%20order%20by%20year%20ASC").
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(*)%20from%20data%20where%20iso%20in%20(%27AUS%27)%20and%20year%20>%20%272012%27%20group%20by%20year").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_4), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20count(year)%20from%20data%20group%20by%20iso,year").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_5), :headers => {})
+
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20year,count(*)%20from%20data%20group%20by%20year").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_6), :headers => {})
         end
 
-        it 'Allows aggregate JSON data by one sum attribute and group by two attributes using FS' do
-          post "/query/#{dataset_id}?outFields=iso,population,year&outStatistics=#{group_attr_1}&tableName=data&where=iso in ('AUS','ESP')&groupByFieldsForStatistics=iso,year&orderByFields=iso", params: params
+        it 'Select count' do
+          post "/query/#{dataset_id}?sql=select count(*) from data", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data.length).to           eq(3)
-          expect(data[0]['population']).to eq(2500)
-          expect(data[0]['loss']).to       eq(1000.0)
-          expect(data[0]['year']).to       eq('2011')
-          expect(data[1]['population']).to eq(500)
-          expect(data[1]['loss']).to       eq(2000.0)
-          expect(data[1]['year']).to       eq('2013')
-          expect(data[2]['population']).to eq(1500) # 3x500
-          expect(data[2]['loss']).to       eq(4000.0)
-          expect(data[2]['year']).to       eq('2014')
+          expect(data[0]['count']).to eq(5)
         end
 
-        it 'Allows aggregate JSON data by one sum attribute and group by two attributes using SQL' do
-          post "/query/#{dataset_id}?sql=select iso,sum(population) as population,year,avg(loss) as loss from data where iso in ('AUS','ESP') group by iso,year order by iso", params: params
+        it 'Select count with where' do
+          post "/query/#{dataset_id}?sql=select count(*) from data where iso in ('AUS')", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data.length).to           eq(3)
-          expect(data[0]['population']).to eq(2500)
-          expect(data[0]['loss']).to       eq(1000.0)
-          expect(data[0]['year']).to       eq('2011')
-          expect(data[1]['population']).to eq(500)
-          expect(data[1]['loss']).to       eq(2000.0)
-          expect(data[1]['year']).to       eq('2013')
-          expect(data[2]['population']).to eq(1500) # 3x500
-          expect(data[2]['loss']).to       eq(4000.0)
-          expect(data[2]['year']).to       eq('2014')
+          expect(data[0]['count']).to eq(2)
         end
 
-        it 'Allows aggregate JSON data by one max attribute and group by one attribute using SQL' do
-          post "/query/#{dataset_id}?sql=select iso,max(population) from data where iso in ('ESP','AUS') group by iso order by iso", params: params
+        it 'Select count with two where' do
+          post "/query/#{dataset_id}?sql=select count(*) from data where iso in ('AUS') and year > '2012' group by year", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data.length).to    eq(2)
-          expect(data[0]['iso']).to eq('AUS')
-          expect(data[0]['population']).to eq(2500)
-          expect(data[1]['iso']).to eq('ESP')
-          expect(data[1]['population']).to eq(500)
+          expect(data[0]['count']).to eq(1)
         end
 
-        it 'Allows aggregate JSON data by one sum attribute and group by one attribute using SQL' do
-          post "/query/#{dataset_id}?sql=select year,sum(population) as population from data group by year order by year ASC", params: params
+        it 'Select count with group by' do
+          post "/query/#{dataset_id}?sql=select count(*) from data group by iso", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data.length).to           eq(3)
-          expect(data[0]['population']).to eq(2500)
-          expect(data[0]['year']).to       eq('2011')
-          expect(data[1]['population']).to eq(500)
-          expect(data[1]['year']).to       eq('2013')
-          expect(data[2]['population']).to eq(1500)
+          expect(data[0]['count']).to eq(3)
+          expect(data[1]['count']).to eq(2)
         end
 
-        it 'Return error message for wrong params' do
-          post "/query/#{dataset_id}?sql=select years,sum(population) from data group by year order by year ASC", params: params
+        it 'Select count with group by two attr' do
+          post "/query/#{dataset_id}?sql=select count(year) from data group by iso,year", params: params
 
           data = json['data']
 
           expect(status).to eq(200)
-          expect(data['error'][0]).to match('')
+          expect(data[0]['count']).to eq(1)
+          expect(data[1]['count']).to eq(3)
+          expect(data[2]['count']).to eq(1)
+        end
+
+        it 'Select year count with group by year' do
+          post "/query/#{dataset_id}?sql=select year,count(*) from data group by year", params: params
+
+          data = json['data']
+
+          expect(status).to eq(200)
+          expect(data[0]['count']).to eq(1)
+          expect(data[0]['year']).to eq('2011')
+          expect(data[1]['count']).to eq(1)
+          expect(data[1]['year']).to eq('2013')
+          expect(data[2]['count']).to eq(3)
+          expect(data[2]['year']).to eq('2014')
         end
       end
     end
