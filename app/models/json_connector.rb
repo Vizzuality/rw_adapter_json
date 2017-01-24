@@ -47,13 +47,13 @@ class JsonConnector
       dataset_url = options['connector_url'] if options['connector_url'].present?
       data_path   = options['data_path']     if options['data_path'].present?
       params = {}
-      data = if options['connector_url'].present? && options['data'].blank?
-               ConnectorService.connect_to_provider(dataset_url, data_path, method, options['id'])
-             else
-               Oj.load(options['data']) if options['data']
-             end
+      new_data = if options['connector_url'].present? && options['data'].blank?
+                   ConnectorService.connect_to_provider(dataset_url, data_path, method, options['id'])
+                 else
+                   Oj.load(options['data']) if options['data']
+                 end
 
-      params['data'] = data || []
+      params['data'] = new_data || []
 
       params['id'] = options['id']
       if method == 'build_dataset'

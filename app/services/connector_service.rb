@@ -44,7 +44,7 @@ module ConnectorService
       hydra    = Typhoeus::Hydra.new max_concurrency: 100
       @request = Typhoeus::Request.new(URI.escape(url), method: :get, headers: headers, followlocation: true)
 
-      if method == 'build_dataset'
+      if method.include?('build_dataset') || method.include?('update_dataset')
         downloaded_file_name = "tmp/import/#{dataset_id}.json"
         downloaded_file      = File.open(downloaded_file_name, 'wb')
         @request.on_headers do |response|
@@ -58,9 +58,9 @@ module ConnectorService
       end
 
       @request.on_complete do |response|
-        downloaded_file.close if method == 'build_dataset'
+        downloaded_file.close if method.include?('build_dataset') || method.include?('update_dataset')
         if response.success?
-          if method == 'build_dataset'
+          if method.include?('build_dataset') || method.include?('update_dataset')
             downloaded_file.close
             @data = { file_name: downloaded_file_name, path: path, path_size: path_size }
           else
