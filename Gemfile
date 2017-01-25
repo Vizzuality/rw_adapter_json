@@ -22,7 +22,7 @@ group :development, :test do
   gem 'faker'
   gem 'rspec-activejob'
   gem 'rspec-rails', '~> 3.5.1'
-  gem 'rubocop', require: false
+  # gem 'rubocop', require: false
   gem 'webmock'
 end
 
