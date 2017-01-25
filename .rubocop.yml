@@ -317,7 +317,7 @@ Style/LineEndConcatenation:
   Enabled: false
 
 # Do not use parentheses for method calls with no arguments.
-Style/MethodCallParentheses:
+Style/MethodCallWithoutArgsParentheses:
   Enabled: false
 
 # Checks if the method definitions have or don't have parentheses.
