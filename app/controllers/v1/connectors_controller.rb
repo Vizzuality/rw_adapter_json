@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module V1
   class ConnectorsController < ApplicationController
     include ActionController::Live
@@ -83,7 +84,7 @@ module V1
       end
 
       def set_dataset
-        @dataset = Dataset.select(:id).where(id: params[:id]).first
+        @dataset = Dataset.select(:id).find(params[:id])
       end
 
       def set_data

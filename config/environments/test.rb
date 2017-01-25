@@ -29,7 +29,7 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
   # config.action_mailer.perform_caching = false
-  if Rails.root.join('tmp/caching-dev.txt').exist?
+  if Rails.root.join('tmp', 'caching-dev.txt').exist?
     config.cache_store = :redis_store, Rails.application.config.redis_url
   end
 

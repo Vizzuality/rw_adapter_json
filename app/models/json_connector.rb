@@ -33,12 +33,12 @@ class JsonConnector
   end
 
   def data_columns
-    dataset = Dataset.select(:id, :data_columns).where(id: @id).first
+    dataset = Dataset.select(:id, :data_columns).find(@id)
     dataset.try(:data_columns)
   end
 
   def data_horizon
-    dataset = Dataset.select(:id, :data_horizon).where(id: @id).first
+    dataset = Dataset.select(:id, :data_horizon).find(@id)
     dataset.try(:data_horizon)
   end
 
@@ -100,13 +100,13 @@ class JsonConnector
           data = sanitize_data(obj, date)
           group << DataValue.new(id: data['id'], dataset_id: dataset_id, data: data)
           if group.size >= batch_size
-            DataValue.import group
+            DataValue.import group, validate: false, batch_size: 100
             group = []
             gc_rebuild
           end
         end
         if group.size <= batch_size
-          DataValue.import group
+          DataValue.import group, validate: false, batch_size: 100
           group = []
           gc_rebuild
         end
@@ -121,13 +121,13 @@ class JsonConnector
           data = sanitize_data(obj, date)
           group << DataValue.new(id: data['id'], dataset_id: dataset_id, data: data)
           if group.size >= batch_size
-            DataValue.import group
+            DataValue.import group, validate: false, batch_size: 100
             group = []
             gc_rebuild
           end
         end
         if group.size <= batch_size
-          DataValue.import group
+          DataValue.import group, validate: false, batch_size: 100
           group = []
           gc_rebuild
         end
@@ -142,7 +142,7 @@ class JsonConnector
     end
 
     def concatenate_data_columns(dataset_id)
-      dataset = Dataset.select(:id, :data_columns, :data_horizon).where(id: dataset_id).first
+      dataset = Dataset.select(:id, :data_columns, :data_horizon).find(dataset_id)
       if dataset.data_values.any?
         first_data = dataset.data_values.first.data
         dataset.update(data_columns: first_data)
@@ -157,10 +157,9 @@ class JsonConnector
       date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
       if dataset.save
-        concatenate_data(dataset.id, params, date)
-        dataset = Dataset.select(:id, :data_columns, :data_horizon).where(id: dataset.id).first
+        concatenate_data(options['id'], params, date)
         if options['data_columns'].blank?
-          concatenate_data_columns(dataset.id)
+          concatenate_data_columns(options['id'])
           dataset.update_data_columns
         end
       end
@@ -168,28 +167,28 @@ class JsonConnector
     end
 
     def update_dataset(options)
-      dataset           = Dataset.select(:id, :data_columns, :data_horizon).where(id: options['id']).first
+      dataset           = Dataset.select(:id, :data_columns, :data_horizon).find(options['id'])
       params            = build_params(options, 'update_dataset')
       params_for_update = params.except('data')
       date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
       if dataset.update(params_for_update)
-        concatenate_data(dataset.id, params, date) if params['data'].present?
+        concatenate_data(options['id'], params, date) if params['data'].present?
       end
       dataset
     end
 
     def overwrite_data(options)
-      dataset           = Dataset.select(:id, :data_columns).where(id: options['id']).first
+      dataset           = Dataset.select(:id, :data_columns).find(options['id'])
       params            = build_params(options, 'build_dataset')
       params_for_update = params.except('data')
       date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
       if dataset.update(params_for_update)
-        dataset.data_values.destroy_all
-        concatenate_data(dataset.id, params, date)
+        dataset.data_values.delete_all
+        concatenate_data(options['id'], params, date)
         if options['data_columns'].blank?
-          concatenate_data_columns(dataset.id)
+          concatenate_data_columns(options['id'])
           dataset.update_data_columns
         end
       end
@@ -197,7 +196,7 @@ class JsonConnector
     end
 
     def update_data_object(options)
-      dataset    = Dataset.select(:id, :data_columns, :data_horizon).where(id: options['id']).first
+      dataset    = Dataset.select(:id, :data_columns, :data_horizon).find(options['id'])
       dataset_id = options['id']
       data_id    = options['data_id']
       data       = options['data']
@@ -208,9 +207,9 @@ class JsonConnector
     end
 
     def delete_data_object(options)
-      dataset    = Dataset.select(:id, :data_columns, :data_horizon).where(id: options['id']).first
+      dataset    = Dataset.select(:id, :data_columns, :data_horizon).find(options['id'])
       data_id    = options['data_id']
-      data_value = DataValue.select(:id).where(id: data_id).first
+      data_value = DataValue.select(:id).find(data_id)
       data_value.destroy
       dataset
     end
