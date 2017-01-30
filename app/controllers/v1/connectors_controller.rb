@@ -31,12 +31,12 @@ module V1
     end
 
     def update
-      begin
+      # begin
         JsonConnector.update_dataset(connector_params)
         success_notifier('saved', 'Dataset updated', 200)
-      rescue
-        fail_notifier(nil, 'Error updating dataset')
-      end
+      # rescue
+      #   fail_notifier(nil, 'Error updating dataset')
+      # end
     end
 
     def update_data
