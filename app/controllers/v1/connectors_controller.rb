@@ -126,7 +126,7 @@ module V1
       end
 
       def overwritable
-        unless params[:dataset].present? && params[:dataset].present? && params[:dataset][:overwrite].present?
+        unless params[:dataset].present? && params[:dataset][:data].present? && params[:dataset][:data][:attributes][:overwrite].present?
           render json: { errors: [{ status: 422, title: "Dataset data is locked and can't be updated" }] }, status: 422
         end
       end

@@ -20,7 +20,7 @@ module Authorization
                           elsif params[:loggedUser][:extraUserData].present? && params[:loggedUser][:extraUserData][:apps].present?
                             params[:loggedUser][:extraUserData][:apps].map { |v| v.downcase }.uniq
                           end
-          @dataset_apps = dataset_params[:application]
+          @dataset_apps = dataset_params[:data][:attributes][:application]
 
           User.data = [{ user_id: user_id, role: @role, apps: @apps }]
           @user = User.last
@@ -30,7 +30,7 @@ module Authorization
       end
 
       def authorize_user
-        @authorized = User.authorize_user!(@user, dataset_params[:application], dataset_params[:userId], match_apps: true)
+        @authorized = User.authorize_user!(@user, dataset_params[:data][:attributes][:application], dataset_params[:data][:attributes][:userId], match_apps: true)
 
         if @authorized.blank?
           render json: { errors: [{ status: 401, title: 'Not authorized!' }] }, status: 401
