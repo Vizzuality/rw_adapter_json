@@ -122,7 +122,7 @@ module V1
       end
 
       def connector_params
-        params.require(:connector).permit!
+        params.require(:connector).except(:dataset).permit!.reject{ |_, v| v.nil? }
       end
 
       def overwritable
