@@ -693,6 +693,10 @@ Metrics/AbcSize:
   Enabled: true
   Max: 200
 
+Metrics/BlockLength:
+  Enabled: true
+  Max: 150
+
 # Avoid excessive block nesting.
 Metrics/BlockNesting:
   Enabled: true

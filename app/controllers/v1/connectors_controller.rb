@@ -12,6 +12,9 @@ module V1
     before_action :set_dataset,      only:  [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
     before_action :set_data,         only:   :show
     after_action  :enable_gc,        only:   :show
+    before_action :overwritable,     only:  [:update, :update_data, :overwrite, :delete_data]
+
+    include Authorization
 
     def show
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri, data: @data
@@ -118,12 +121,14 @@ module V1
         Dataset.notifier(dataset_id, status) if ServiceSetting.auth_token.present?
       end
 
-      def meta_data_params
-        @connector.recive_dataset_meta[:dataset]
-      end
-
       def connector_params
         params.require(:connector).permit!
+      end
+
+      def overwritable
+        unless params[:dataset].present? && params[:dataset].present? && params[:dataset][:overwrite].present?
+          render json: { errors: [{ status: 422, title: "Dataset data is locked and can't be updated" }] }, status: 422
+        end
       end
 
       def success_notifier(status, message, status_code)

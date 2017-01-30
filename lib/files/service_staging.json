@@ -79,30 +79,75 @@
         }]
       },
       {
-        "url": "/json-datasets/:id/data-overwrite",
+        "url": "/dataset/:dataset/concat",
         "method": "POST",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
+        },
         "endpoints": [{
             "method": "POST",
             "baseUrl": "http://localhost:3010",
-            "path": "/datasets/:id/overwrite"
+            "path": "/datasets/:dataset"
         }]
       },
       {
-        "url": "/json-datasets/:id/data/:data_id",
+        "url": "/dataset/:dataset/data-overwrite",
         "method": "POST",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
+        },
         "endpoints": [{
             "method": "POST",
             "baseUrl": "http://localhost:3010",
-            "path": "/datasets/:id/data/:data_id"
+            "path": "/datasets/:dataset/overwrite"
         }]
       },
       {
-        "url": "/json-datasets/:id/data/:data_id",
+        "url": "/dataset/:dataset/data/:data_id",
+        "method": "POST",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
+        },
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "http://localhost:3010",
+            "path": "/datasets/:dataset/data/:data_id"
+        }]
+      },
+      {
+        "url": "/dataset/:dataset/data/:data_id",
         "method": "DELETE",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
+        },
         "endpoints": [{
             "method": "DELETE",
             "baseUrl": "http://localhost:3010",
-            "path": "/datasets/:id/data/:data_id"
+            "path": "/datasets/:dataset/data/:data_id"
         }]
       },
       {
