@@ -21,13 +21,13 @@ module V1
     end
 
     def create
-      begin
+      # begin
         @dataset = JsonConnector.build_dataset(connector_params)
         @dataset.save
         success_notifier('saved', 'Dataset created', 201)
-      rescue
-        fail_notifier(nil, 'Error creating dataset')
-      end
+      # rescue
+      #   fail_notifier(nil, 'Error creating dataset')
+      # end
     end
 
     def update
@@ -127,14 +127,18 @@ module V1
            params[:dataId].present?
 
           update_params = {}
-          update_params['id']           = params[:id]
-          update_params['data']         = Oj.dump(params[:data])
-          update_params['data_id']      = params[:data_id] || params[:dataId]
-          update_params['data_path']    = params[:data_path] || params[:dataPath]
-          update_params['conector_url'] = params[:connector_url] || params[:connectorUrl]
+          update_params['id']            = params[:id]
+          update_params['data']          = Oj.dump(params[:data])
+          update_params['data_id']       = params[:data_id] || params[:dataId]
+          update_params['data_path']     = params[:data_path] || params[:dataPath]
+          update_params['connector_url'] = params[:connector_url] || params[:connectorUrl]
           update_params
         else
-          params.require(:connector).except(:dataset).permit!
+          if params[:connector].present? && params[:connector][:data].present? && params[:connector][:connector_url].present?
+            params.require(:connector).except(:dataset, :connector_url).permit!
+          else
+            params.require(:connector).except(:dataset).permit!
+          end
         end
       end
 
