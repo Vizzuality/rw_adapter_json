@@ -203,19 +203,19 @@ module V1
       it 'Allows to overwrite dataset data with empty object' do
         post "/datasets/#{dataset_id}/overwrite", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
                                                            "id": "#{dataset_id}",
-                                                           "data": "[]",
+                                                           "data": ["empty": "object"],
                                                            "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
-        expect(json_main['message']).to                  eq('Dataset data replaced')
-        expect(Dataset.find(dataset_id).data_columns).to eq({})
-        expect(Dataset.find(dataset_id).data_values).to  eq([])
+        expect(json_main['message']).to                      eq('Dataset data replaced')
+        expect(Dataset.find(dataset_id).data_columns).to     eq({"empty"=>{"type"=>"string"}, "data_id"=>{"type"=>"string"}})
+        expect(Dataset.find(dataset_id).data_values.size).to eq(1)
       end
 
       it 'Allows to overwrite dataset data' do
         post "/datasets/#{dataset_id}/overwrite", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
                                                            "id": "#{dataset_id}",
-                                                           "data": Oj.dump([{ "pcpuid": "900001" }]),
+                                                           "data": [{ "pcpuid": "900001" }],
                                                            "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
@@ -229,7 +229,7 @@ module V1
         post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
                                                                  "id": "#{dataset_id}",
                                                                  "data_id": "#{data_id}",
-                                                                 "data": "{\"pcpuid\": \"900001\"}",
+                                                                 "data": {"pcpuid": "900001"},
                                                                  "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
@@ -251,7 +251,7 @@ module V1
       it 'Allows to update dataset with data' do
         post "/datasets/#{dataset_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
                                                  "id": "#{dataset_id}",
-                                                 "data": Oj.dump(data),
+                                                 "data": data,
                                                  "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
@@ -273,7 +273,7 @@ module V1
           post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["prep"] }, "id": "3242-32442-432"},
                                                                    "id": "#{dataset_id}",
                                                                    "data_id": "#{data_id}",
-                                                                   "data": "{\"pcpuid\": \"900001\"}",
+                                                                   "data": {"pcpuid": "900001"},
                                                                    "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-435"}}}}
 
           expect(status).to eq(401)
@@ -284,7 +284,7 @@ module V1
           post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw"] }, "id": "3242-32442-432"},
                                                                    "id": "#{dataset_id}",
                                                                    "data_id": "#{data_id}",
-                                                                   "data": "{\"pcpuid\": \"900001\"}",
+                                                                   "data": {"pcpuid": "900001"},
                                                                    "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-432"}}}}
 
           expect(status).to eq(200)
@@ -294,7 +294,7 @@ module V1
           post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw"] }, "id": "3242-32442-432"},
                                                                    "id": "#{dataset_id}",
                                                                    "data_id": "#{data_id}",
-                                                                   "data": "{\"pcpuid\": \"900001\"}",
+                                                                   "data": {"pcpuid": "900001"},
                                                                    "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-435"}}}}
 
           expect(status).to eq(401)
@@ -305,7 +305,7 @@ module V1
           post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "user", "extraUserData": { "apps": ["gfw"] }, "id": "3242-32442-432"},
                                                                    "id": "#{dataset_id}",
                                                                    "data_id": "#{data_id}",
-                                                                   "data": "{\"pcpuid\": \"900001\"}",
+                                                                   "data": {"pcpuid": "900001"},
                                                                    "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-435"}}}}
 
           expect(status).to eq(401)
@@ -316,7 +316,7 @@ module V1
           post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "admin", "extraUserData": { "apps": ["gfw"] }, "id": "3242-32442-432"},
                                                                    "id": "#{dataset_id}",
                                                                    "data_id": "#{data_id}",
-                                                                   "data": "{\"pcpuid\": \"900001\"}",
+                                                                   "data": {"pcpuid": "900001"},
                                                                    "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-435"}}}}
 
           expect(status).to eq(200)

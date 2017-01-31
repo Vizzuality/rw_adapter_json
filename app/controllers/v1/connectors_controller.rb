@@ -122,8 +122,17 @@ module V1
       end
 
       def connector_params
-        if params[:data].present? || params[:connector_url].present? || params[:data_id].present?
-          params.except(:connector, :dataset, :loggedUser)
+        if params[:data].present? || params[:connector_url].present? ||
+           params[:data_id].present? || params[:connectorUrl].present? ||
+           params[:dataId].present?
+
+          update_params = {}
+          update_params['id']           = params[:id]
+          update_params['data']         = Oj.dump(params[:data])
+          update_params['data_id']      = params[:data_id] || params[:dataId]
+          update_params['data_path']    = params[:data_path] || params[:dataPath]
+          update_params['conector_url'] = params[:connector_url] || params[:connectorUrl]
+          update_params
         else
           params.require(:connector).except(:dataset).permit!
         end
