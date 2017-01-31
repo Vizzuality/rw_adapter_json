@@ -16,8 +16,10 @@ class JsonConnector
   def initialize(params)
     @dataset_params = if params[:connector].present? && params[:connector].to_unsafe_hash.recursive_has_key?(:attributes)
                         params[:connector][:dataset][:data].merge(params[:connector][:dataset][:data][:attributes].to_unsafe_hash)
+                      elsif params[:data].present? || params[:connector_url].present? || params[:data_id].present?
+                        params.except(:connector, :dataset, :loggedUser)
                       else
-                        params[:dataset] || params[:connector]
+                        params[:connector] || params[:dataset]
                       end
     initialize_options
   end

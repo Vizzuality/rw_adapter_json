@@ -31,12 +31,12 @@ module V1
     end
 
     def update
-      # begin
+      begin
         JsonConnector.update_dataset(connector_params)
         success_notifier('saved', 'Dataset updated', 200)
-      # rescue
-      #   fail_notifier(nil, 'Error updating dataset')
-      # end
+      rescue
+        fail_notifier(nil, 'Error updating dataset')
+      end
     end
 
     def update_data
@@ -122,7 +122,11 @@ module V1
       end
 
       def connector_params
-        params.require(:connector).except(:dataset).permit!.reject{ |_, v| v.nil? }
+        if params[:data].present? || params[:connector_url].present? || params[:data_id].present?
+          params.except(:connector, :dataset, :loggedUser)
+        else
+          params.require(:connector).except(:dataset).permit!
+        end
       end
 
       def overwritable
