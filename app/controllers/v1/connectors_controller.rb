@@ -21,13 +21,13 @@ module V1
     end
 
     def create
-      # begin
+      begin
         @dataset = JsonConnector.build_dataset(connector_params)
         @dataset.save
         success_notifier('saved', 'Dataset created', 201)
-      # rescue
-      #   fail_notifier(nil, 'Error creating dataset')
-      # end
+      rescue
+        fail_notifier(nil, 'Error creating dataset')
+      end
     end
 
     def update

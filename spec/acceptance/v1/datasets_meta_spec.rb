@@ -255,9 +255,9 @@ module V1
                                                  "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
-        expect(json_main['message']).to                      eq('Dataset updated')
-        expect(Dataset.find(dataset_id).data_columns).not_to be_empty
-        expect(Dataset.find(dataset_id).data).not_to         be_empty
+        expect(json_main['message']).to                                              eq('Dataset updated')
+        expect(Dataset.find(dataset_id).data_columns).not_to                         be_empty
+        expect(Dataset.find(dataset_id).data_values.pluck(:data).first['pcpuid']).to eq('500001')
       end
 
       it 'Allows to delete dataset' do

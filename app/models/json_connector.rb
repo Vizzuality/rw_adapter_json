@@ -154,7 +154,7 @@ class JsonConnector
 
     def build_dataset(options)
       params            = build_params(options, 'build_dataset')
-      params_for_create = params.except('data').merge(data: [])
+      params_for_create = params.except('data')
       dataset           = Dataset.new(params_for_create)
       date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
