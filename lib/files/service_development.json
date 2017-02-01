@@ -1,6 +1,7 @@
 {
     "id": "rw_adapter_json_v1",
     "name": "RW Adapter Json v1",
+    "tags": ["rw"],
     "urls": [
       {
         "url": "/query/:dataset",
@@ -8,7 +9,11 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-          "provider": "rwjson"
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
         },
         "endpoints": [{
             "method": "POST",
@@ -23,7 +28,11 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-          "provider": "rwjson"
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
         },
         "endpoints": [{
             "method": "POST",
@@ -38,7 +47,11 @@
         "paramProvider": "dataset",
         "dataProvider": "dataset",
         "filters":{
-          "provider": "rwjson"
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
         },
         "endpoints": [{
             "method": "POST",
@@ -66,30 +79,75 @@
         }]
       },
       {
-        "url": "/json-datasets/:id/data-overwrite",
+        "url": "/dataset/:dataset/concat",
         "method": "POST",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
+        },
         "endpoints": [{
             "method": "POST",
             "baseUrl": "http://192.168.99.100:3010",
-            "path": "/datasets/:id/overwrite"
+            "path": "/datasets/:dataset"
         }]
       },
       {
-        "url": "/json-datasets/:id/data/:data_id",
+        "url": "/dataset/:dataset/data-overwrite",
         "method": "POST",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
+        },
         "endpoints": [{
             "method": "POST",
             "baseUrl": "http://192.168.99.100:3010",
-            "path": "/datasets/:id/data/:data_id"
+            "path": "/datasets/:dataset/overwrite"
         }]
       },
       {
-        "url": "/json-datasets/:id/data/:data_id",
+        "url": "/dataset/:dataset/data/:data_id",
+        "method": "POST",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
+        },
+        "endpoints": [{
+            "method": "POST",
+            "baseUrl": "http://192.168.99.100:3010",
+            "path": "/datasets/:dataset/data/:data_id"
+        }]
+      },
+      {
+        "url": "/dataset/:dataset/data/:data_id",
         "method": "DELETE",
+        "paramProvider": "dataset",
+        "dataProvider": "dataset",
+        "filters":{
+          "data": {
+              "attributes": {
+                "provider": "rwjson"
+              }
+            }
+        },
         "endpoints": [{
             "method": "DELETE",
             "baseUrl": "http://192.168.99.100:3010",
-            "path": "/datasets/:id/data/:data_id"
+            "path": "/datasets/:dataset/data/:data_id"
         }]
       },
       {
@@ -102,240 +160,5 @@
         }]
       }
     ],
-    "swagger": {
-      "swagger": "2.0",
-      "info": {
-        "title": "RW Adapter CartoDB API",
-        "description": "Resource Watch - Adapter CartoDB API",
-        "version": "1.0.0"
-      },
-      "host": "ec2-52-23-163-254.compute-1.amazonaws.com",
-      "schemes": [
-        "http"
-      ],
-      "produces": [
-        "application/json"
-      ],
-      "paths": {
-        "/query/{id}": {
-          "post": {
-            "description": "Do query to dataset",
-            "produces": [
-              "application/json"
-            ],
-            "tags": [
-              "Query"
-            ],
-            "parameters": [
-              {
-                "name": "id",
-                "in": "path",
-                "description": "ID of dataset to do query",
-                "required": true,
-                "type": "string"
-              },
-              {
-                "name": "select",
-                "in": "query",
-                "description": "Names of columns (separated by comma) to obtain. example iso,population",
-                "type": "string"
-              },
-              {
-                "name": "order",
-                "in": "query",
-                "description": "Names of colums (separated by comma) to order data. example iso,population. With - prefix, DESC order. Without prefix, ASC order.",
-                "type": "string"
-              },
-              {
-                "name": "aggr_by",
-                "in": "query",
-                "description": "Names of colums (separated by comma) to group data. example iso,population.",
-                "type": "string"
-              },
-              {
-                "name": "filter",
-                "in": "query",
-                "description": "WHERE clausule of the query to filter data. (<column_name> <operator> <value> <and/or> ...). Operators->  == (equal) <= (less than or equal) >= (greater than or equal) >> (greather than) << (less than) >< (between - sample pcpuid><'500001'..'9506590');",
-                "type": "string"
-              },
-              {
-                "name": "filter_not",
-                "in": "query",
-                "description": "WHERE clausule denied of the query to filter data. (<column_name> <operator> <value> <and/or> ...). Operators->  == (equal) <= (less than or equal) >= (greater than or equal) >> (greather than) << (less than) >< (between - sample pcpuid><'500001'..'9506590');",
-                "type": "string"
-              },
-              {
-                "name": "dataset",
-                "in": "body",
-                "description": "Dataset to do query",
-                "required": true,
-                "schema": {
-                  "$ref": "#/definitions/DatasetBody"
-                }
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Results obtained",
-                "schema": {
-                  "$ref": "#/definitions/QueryResponse"
-                }
-              },
-              "404": {
-                "description": "Dataset/Query not found",
-                "schema": {
-                  "$ref": "#/definitions/Error"
-                }
-              },
-              "500": {
-                "description": "Unexpected error",
-                "schema": {
-                  "$ref": "#/definitions/Error"
-                }
-              },
-              "default": {
-                "description": "unexpected error",
-                "schema": {
-                  "$ref": "#/definitions/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "definitions": {
-        "QueryResponse": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer",
-              "format": "int64",
-              "description": "Dataset id"
-            },
-            "connector_name": {
-              "type": "string",
-              "description": "Name of the dataset"
-            },
-            "provider": {
-              "type": "string",
-              "description": "Name of the provider"
-            },
-            "format": {
-              "type": "string",
-              "description": "Data format"
-            },
-            "rest_connector_params": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "description": "Objects {key, value} with headers, params, that it is neccesary to attack url dataset"
-              }
-            },
-            "connector_url": {
-              "type": "string",
-              "description": "Url of connector"
-            },
-            "connector_path": {
-              "type": "string",
-              "description": "Path of connector"
-            },
-            "table_name": {
-              "type": "string",
-              "description": "Name of the table of the dataset"
-            },
-            "table_columns": {
-              "type": "object",
-              "description": "Object with key (name of column) and type (type of data)"
-            },
-            "data": {
-              "type": "array",
-              "description": "Result objects returned by the query.",
-              "items": {
-                "type": "object",
-                "description": "Objects with the columns of the query"
-              }
-            }
-          }
-        },
-        "DatasetBody": {
-          "type": "object",
-          "properties": {
-            "dataset": {
-              "$ref": "#/definitions/Dataset"
-            }
-          }
-        },
-        "Dataset": {
-          "type": "object",
-          "properties": {
-            "id": {
-              "type": "integer",
-              "format": "int64",
-              "description": "Dataset id"
-            },
-            "connector_name": {
-              "type": "string",
-              "description": "Name of the dataset"
-            },
-            "provider": {
-              "type": "string",
-              "description": "Name of the provider"
-            },
-            "format": {
-              "type": "string",
-              "description": "Data format"
-            },
-            "rest_connector_params": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "description": "Objects {key, value} with headers, params, that it is neccesary to attack url dataset"
-              }
-            },
-            "dataset_meta": {
-              "type": "object",
-              "properties": {
-                "connector_url": {
-                  "type": "string",
-                  "description": "Url of connector"
-                },
-                "connector_path": {
-                  "type": "string",
-                  "description": "Path of connector"
-                },
-                "table_name": {
-                  "type": "string",
-                  "description": "Name of the table of the dataset"
-                },
-                "table_columns": {
-                  "type": "object",
-                  "description": "Object with key (name of column) and type (type of data)"
-                }
-              }
-            }
-          }
-        },
-        "Error": {
-          "type": "object",
-          "properties": {
-            "status": {
-              "type": "string",
-              "description": "The HTTP status code applicable to this problem, expressed as a string value"
-            },
-            "error": {
-              "type": "string",
-              "description": "An application-specific error code, expressed as a string value"
-            },
-            "exception": {
-              "type": "string",
-              "description": "A short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization."
-            },
-            "traces": {
-              "type": "string",
-              "description": "A human-readable explanation specific to this occurrence of the problem. Like title, this field's value can be localized"
-            }
-          }
-        }
-      }
-    }
+    "swagger": {}
 }

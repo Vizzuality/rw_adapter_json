@@ -70,20 +70,24 @@ module V1
         [{"count": 1, "confidence": "confirmed", "country_iso": "BRA", "state_iso": "BRA1", "year": "2016", "day": 9}, {"count": 13, "confidence": "confirmed", "country_iso": "BRA", "state_iso": "BRA1", "year": "2016", "day": 10}]
       }
 
-      let!(:params) {{"connector": {
+      let!(:params) {{"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                      "connector": {
                       "data_columns": Oj.dump(data_columns),
                       "data": Oj.dump(data),
                       "legend": {"long": "123", "lat": "123", "country": "pais", "region": "barrio", "date": ["start_date", "end_date"]}
                     }}}
 
-      let!(:external_params) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
+      let!(:external_params) {{"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                               "connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
                                              "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be"
                              }}}
-      let!(:external_params_with_path) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17752",
+      let!(:external_params_with_path) {{"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                          "connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17752",
                                              "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28bf",
                                              "data_path": "rows"
                                        }}}
-      let!(:external_params_with_third_path) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17753",
+      let!(:external_params_with_third_path) {{"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                                "connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17753",
                                                    "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28bg",
                                                    "data_path": "data,rows,data_to_extract"
                                              }}}
@@ -159,9 +163,10 @@ module V1
         end
 
         it 'Allows to update dataset' do
-          post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
-                                                   "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be"
-                                                  }}
+          post "/datasets/#{dataset_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                                   "id": "#{dataset_id}",
+                                                   "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be",
+                                                   "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
           expect(status).to eq(200)
           expect(json_main['message']).to                      eq('Dataset updated')
@@ -170,9 +175,10 @@ module V1
         end
 
         it 'Allows to update dataset without data_path' do
-          post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
-                                                   "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json"
-                                                  }}
+          post "/datasets/#{dataset_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                                   "id": "#{dataset_id}",
+                                                   "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json",
+                                                   "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
           expect(status).to eq(200)
           expect(json_main['message']).to                  eq('Dataset updated')
@@ -181,10 +187,11 @@ module V1
         end
 
         it 'Allows to update dataset with data_path root_path' do
-          post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
+          post "/datasets/#{dataset_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                                   "id": "#{dataset_id}",
                                                    "connector_url": "http://gfw2-data.s3.amazonaws.com/climate/glad_country_pages.json",
-                                                   "data_path": "root_path"
-                                                  }}
+                                                   "data_path": "root_path",
+                                                   "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
           expect(status).to eq(200)
           expect(json_main['message']).to                      eq('Dataset updated')
@@ -194,20 +201,22 @@ module V1
       end
 
       it 'Allows to overwrite dataset data with empty object' do
-        post "/datasets/#{dataset_id}/overwrite", params: {"connector": {"id": "#{dataset_id}",
-                                                                "data": ""
-                                                               }}
+        post "/datasets/#{dataset_id}/overwrite", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                                           "id": "#{dataset_id}",
+                                                           "data": ["empty": "object"],
+                                                           "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
-        expect(json_main['message']).to                  eq('Dataset data replaced')
-        expect(Dataset.find(dataset_id).data_columns).to eq({})
-        expect(Dataset.find(dataset_id).data_values).to  eq([])
+        expect(json_main['message']).to                      eq('Dataset data replaced')
+        expect(Dataset.find(dataset_id).data_columns).to     eq({"empty"=>{"type"=>"string"}, "data_id"=>{"type"=>"string"}})
+        expect(Dataset.find(dataset_id).data_values.size).to eq(1)
       end
 
       it 'Allows to overwrite dataset data' do
-        post "/datasets/#{dataset_id}/overwrite", params: {"connector": {"id": "#{dataset_id}",
-                                                                "data": Oj.dump([{ "pcpuid": "900001" }])
-                                                               }}
+        post "/datasets/#{dataset_id}/overwrite", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                                           "id": "#{dataset_id}",
+                                                           "data": [{ "pcpuid": "900001" }],
+                                                           "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
         expect(json_main['message']).to                      eq('Dataset data replaced')
@@ -217,10 +226,11 @@ module V1
       end
 
       it 'Allows to update dataset data' do
-        post "/datasets/#{dataset_id}/data/#{data_id}", params: {"connector": {"id": "#{dataset_id}",
+        post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                                                 "id": "#{dataset_id}",
                                                                  "data_id": "#{data_id}",
-                                                                 "data": "{\"pcpuid\": \"900001\"}"
-                                                                }}
+                                                                 "data": {"pcpuid": "900001"},
+                                                                 "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
         expect(json_main['message']).to                      eq('Dataset updated')
@@ -230,7 +240,7 @@ module V1
       end
 
       it 'Allows to delete dataset data' do
-        delete "/datasets/#{dataset_id}/data/#{data_id}"
+        delete "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"}, "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
         expect(json_main['message']).to                      eq('Dataset data deleted')
@@ -239,9 +249,10 @@ module V1
       end
 
       it 'Allows to update dataset with data' do
-        post "/datasets/#{dataset_id}", params: {"connector": {"id": "#{dataset_id}",
-                                                 "data": Oj.dump(data)
-                                                }}
+        post "/datasets/#{dataset_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw","prep"] }, "id": "3242-32442-432"},
+                                                 "id": "#{dataset_id}",
+                                                 "data": data,
+                                                 "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"]}}}}
 
         expect(status).to eq(200)
         expect(json_main['message']).to                      eq('Dataset updated')
@@ -255,6 +266,61 @@ module V1
         expect(status).to eq(200)
         expect(json_main['message']).to eq('Dataset deleted')
         expect(Dataset.where(id: dataset_id)).to be_empty
+      end
+
+      context 'Check authorization' do
+        it 'Do not allows to update dataset data for not authorized user' do
+          post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["prep"] }, "id": "3242-32442-432"},
+                                                                   "id": "#{dataset_id}",
+                                                                   "data_id": "#{data_id}",
+                                                                   "data": {"pcpuid": "900001"},
+                                                                   "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-435"}}}}
+
+          expect(status).to eq(401)
+          expect(json_main['errors'][0]['title']).to eq('Not authorized!')
+        end
+
+        it 'Allows to update dataset data for user if dataset is owned by user' do
+          post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw"] }, "id": "3242-32442-432"},
+                                                                   "id": "#{dataset_id}",
+                                                                   "data_id": "#{data_id}",
+                                                                   "data": {"pcpuid": "900001"},
+                                                                   "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-432"}}}}
+
+          expect(status).to eq(200)
+        end
+
+        it 'Do not allows to update dataset data for manager user if dataset not owned by user' do
+          post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "manager", "extraUserData": { "apps": ["gfw"] }, "id": "3242-32442-432"},
+                                                                   "id": "#{dataset_id}",
+                                                                   "data_id": "#{data_id}",
+                                                                   "data": {"pcpuid": "900001"},
+                                                                   "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-435"}}}}
+
+          expect(status).to eq(401)
+          expect(json_main['errors'][0]['title']).to eq('Not authorized!')
+        end
+
+        it 'Do not allows to update dataset data for user' do
+          post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "user", "extraUserData": { "apps": ["gfw"] }, "id": "3242-32442-432"},
+                                                                   "id": "#{dataset_id}",
+                                                                   "data_id": "#{data_id}",
+                                                                   "data": {"pcpuid": "900001"},
+                                                                   "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-435"}}}}
+
+          expect(status).to eq(401)
+          expect(json_main['errors'][0]['title']).to eq('Not authorized!')
+        end
+
+        it 'Allows to update dataset data for admin user' do
+          post "/datasets/#{dataset_id}/data/#{data_id}", params: {"loggedUser": {"role": "admin", "extraUserData": { "apps": ["gfw"] }, "id": "3242-32442-432"},
+                                                                   "id": "#{dataset_id}",
+                                                                   "data_id": "#{data_id}",
+                                                                   "data": {"pcpuid": "900001"},
+                                                                   "dataset": {"data": {"attributes": {"overwrite": true, "application": ["gfw"], "userId": "3242-32442-435"}}}}
+
+          expect(status).to eq(200)
+        end
       end
     end
   end

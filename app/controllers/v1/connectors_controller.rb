@@ -12,19 +12,22 @@ module V1
     before_action :set_dataset,      only:  [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
     before_action :set_data,         only:   :show
     after_action  :enable_gc,        only:   :show
+    before_action :overwritable,     only:  [:update, :update_data, :overwrite, :delete_data]
+
+    include Authorization
 
     def show
       render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri, data: @data
     end
 
     def create
-      begin
+      # begin
         @dataset = JsonConnector.build_dataset(connector_params)
         @dataset.save
         success_notifier('saved', 'Dataset created', 201)
-      rescue
-        fail_notifier(nil, 'Error creating dataset')
-      end
+      # rescue
+      #   fail_notifier(nil, 'Error creating dataset')
+      # end
     end
 
     def update
@@ -118,12 +121,31 @@ module V1
         Dataset.notifier(dataset_id, status) if ServiceSetting.auth_token.present?
       end
 
-      def meta_data_params
-        @connector.recive_dataset_meta[:dataset]
+      def connector_params
+        if params[:data].present? || params[:connector_url].present? ||
+           params[:data_id].present? || params[:connectorUrl].present? ||
+           params[:dataId].present?
+
+          update_params = {}
+          update_params['id']            = params[:id]
+          update_params['data']          = Oj.dump(params[:data])
+          update_params['data_id']       = params[:data_id] || params[:dataId]
+          update_params['data_path']     = params[:data_path] || params[:dataPath]
+          update_params['connector_url'] = params[:connector_url] || params[:connectorUrl]
+          update_params
+        else
+          if params[:connector].present? && params[:connector][:data].present? && params[:connector][:connector_url].present?
+            params.require(:connector).except(:dataset, :connector_url).permit!
+          else
+            params.require(:connector).except(:dataset).permit!
+          end
+        end
       end
 
-      def connector_params
-        params.require(:connector).permit!
+      def overwritable
+        unless params[:dataset].present? && params[:dataset][:data].present? && params[:dataset][:data][:attributes][:overwrite].present?
+          render json: { errors: [{ status: 422, title: "Dataset data is locked and can't be updated" }] }, status: 422
+        end
       end
 
       def success_notifier(status, message, status_code)
