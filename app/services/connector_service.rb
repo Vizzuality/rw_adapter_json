@@ -28,7 +28,7 @@ module ConnectorService
     def connect_to_provider(connector_url, data_path, method=nil, dataset_id=nil)
       if integer? data_path
         path = data_path.to_i
-      elsif data_path.include?('root_path')
+      elsif data_path.blank? || data_path.include?('root_path')
         path = nil
       else
         path      = data_path.split(',')

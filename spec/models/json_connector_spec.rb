@@ -49,15 +49,6 @@ RSpec.describe JsonConnector, type: :model do
                   "data_id": data_id
               }]}
 
-  let!(:params) {{"connector": {
-                  "data_columns": Oj.dump(data_columns),
-                  "data": Oj.dump(data)
-                }}}
-
-  let!(:external_params) {{"connector": {"id": "fd2a6bab-5697-404b-9cf9-5905bba17751",
-                                         "connector_url": "http://192.168.99.100:8000/query/5306fd54-df71-4e20-8b34-2ff464ab28be"
-                         }}}
-
   let!(:dataset) {
     dataset = Dataset.create!(data_columns: data_columns)
     dataset.data_values.create(id: 'fd2a6bab-5697-404b-9cf9-5905bba17719', data: data.last)

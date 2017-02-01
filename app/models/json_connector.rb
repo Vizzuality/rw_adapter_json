@@ -16,8 +16,10 @@ class JsonConnector
   def initialize(params)
     @dataset_params = if params[:connector].present? && params[:connector].to_unsafe_hash.recursive_has_key?(:attributes)
                         params[:connector][:dataset][:data].merge(params[:connector][:dataset][:data][:attributes].to_unsafe_hash)
+                      elsif params[:data].present? || params[:connector_url].present? || params[:data_id].present?
+                        params
                       else
-                        params[:dataset] || params[:connector]
+                        params[:connector] || params[:dataset]
                       end
     initialize_options
   end
@@ -47,10 +49,10 @@ class JsonConnector
       dataset_url = options['connector_url'] if options['connector_url'].present?
       data_path   = options['data_path']     if options['data_path'].present?
       params = {}
-      new_data = if options['connector_url'].present? && options['data'].blank?
+      new_data = if options['connector_url'].present?
                    ConnectorService.connect_to_provider(dataset_url, data_path, method, options['id'])
                  else
-                   Oj.load(options['data']) if options['data']
+                   Oj.load(options['data']) if options['data'].present?
                  end
 
       params['data'] = new_data || []
@@ -152,7 +154,7 @@ class JsonConnector
 
     def build_dataset(options)
       params            = build_params(options, 'build_dataset')
-      params_for_create = params.except('data').merge(data: [])
+      params_for_create = params.except('data')
       dataset           = Dataset.new(params_for_create)
       date              = options['legend']['date'] if options['legend'].present? && options['legend']['date'].present?
 
