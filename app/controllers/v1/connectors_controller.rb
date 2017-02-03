@@ -1,23 +1,19 @@
 # frozen_string_literal: true
 module V1
   class ConnectorsController < ApplicationController
-    include ActionController::Live
-
-    FLUSH_EVERY = 500
-
     before_action :disable_gc,       only:   :show
     before_action :set_connector,    except: :info
     before_action :set_query_filter, except: :info
     before_action :set_uri,          except: :info
     before_action :set_dataset,      only:  [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
-    before_action :set_data,         only:   :show
     after_action  :enable_gc,        only:   :show
     before_action :overwritable,     only:  [:update, :update_data, :overwrite, :delete_data]
 
     include Authorization
 
     def show
-      render json: @connector, serializer: ConnectorSerializer, query_filter: @query_filter, root: false, uri: @uri, data: @data
+      @data = DataStream.new(@connector.data(@query_filter))
+      render json: @connector, serializer: ConnectorSerializer, root: false, uri: @uri, data: @data
     end
 
     def create
@@ -88,10 +84,6 @@ module V1
 
       def set_dataset
         @dataset = Dataset.select(:id).find(params[:id])
-      end
-
-      def set_data
-        @data = @connector.data(@query_filter)
       end
 
       def set_query_filter
@@ -183,49 +175,6 @@ module V1
           "application" => ["your", "apps"]
         }
       end
-
-      def stream_data_array(data)
-        return data if Rails.env.test?
-        headers["Content-Disposition"] = 'inline'
-        headers["Content-Type"]        = 'application/json; charset=utf-8'
-        # headers["Content-Encoding"]    = 'deflate'
-
-        # deflate = Zlib::Deflate.new
-
-        buffer = "{\n"
-        buffer << '"cloneUrl": '
-        buffer << JSON.pretty_generate(clone_url)
-        buffer << ",\n"
-        buffer << '"data": '
-        buffer << "[\n  "
-
-        data.each_with_index do |object, i|
-          buffer << ",\n  " unless i.zero?
-          buffer << JSON.pretty_generate(object, depth: 1)
-
-          if (i % FLUSH_EVERY).zero?
-            # write(deflate, buffer)
-            write(buffer)
-            buffer = ""
-          end
-        end
-
-        buffer << "\n]\n}\n"
-
-        write(buffer)
-        # write(deflate, buffer)
-        # write(deflate, nil) # Flush deflate.
-        response.stream.close
-      end
-
-      def write(data)
-        response.stream.write(data)
-      end
-
-      # def write(deflate, data)
-      #   deflated = deflate.deflate(data)
-      #   response.stream.write(deflated)
-      # end
 
       def disable_gc
         GC.start(full_mark: false, immediate_sweep: false)
