@@ -11,14 +11,13 @@ class ConnectorSerializer < ApplicationSerializer
   end
 
   def data
-    @data
+    @data.data
   end
 
   def initialize(object, options)
     super
-    @query_filter = options[:query_filter]
-    @uri          = options[:uri]
-    @data         = options[:data]
+    @uri  = options[:uri]
+    @data = options[:data]
   end
 
   private
