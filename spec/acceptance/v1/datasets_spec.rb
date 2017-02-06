@@ -94,7 +94,7 @@ module V1
               "type": "result",
               "id": "undefined",
               "attributes": {
-                "query": "?outFields=*&tableName=data&where=cartodb_id >= '2' and cartodb_id != '4' and pcpuid between '350659' and '9506590'"
+                "query": "?outFields=*&tableName=data&where=cartodb_id >= '2' and cartodb_id != '4' and pcpuid between '350659' and 9506590"
               },
               "relationships": {}
             }
@@ -107,7 +107,7 @@ module V1
               "type": "result",
               "id": "undefined",
               "attributes": {
-                "query": "?outFields=cartodb_id,pcpuid&tableName=data&where=cartodb_id < '5' and pcpuid >= '350558' and cartodb_id != '4' and pcpuid not between '350640' and '450590'&orderByFields=pcpuid DESC"
+                "query": "?outFields=cartodb_id,pcpuid&tableName=data&where=cartodb_id < 5 and pcpuid >= '350558' and cartodb_id != '4' and pcpuid not between '350640' and '450590'&orderByFields=pcpuid DESC"
               },
               "relationships": {}
             }
@@ -120,7 +120,7 @@ module V1
               "type": "result",
               "id": "undefined",
               "attributes": {
-                "query": "?outFields=cartodb_id,pcpuid&tableName=data&where=cartodb_id >= '4' and pcpuid between '200001' and '9506590'&orderByFields=pcpuid ASC"
+                "query": "?outFields=cartodb_id,pcpuid&tableName=data&where=cartodb_id >= '4' and pcpuid between 200001 and '9506590'&orderByFields=pcpuid ASC"
               },
               "relationships": {}
             }
