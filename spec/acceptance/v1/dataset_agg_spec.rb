@@ -13,7 +13,7 @@ module V1
                               "type": "string"
                             },
                             "year": {
-                              "type": "string"
+                              "type": "number"
                             },
                             "the_geom": {
                               "type": "geometry"
@@ -31,31 +31,31 @@ module V1
 
       let!(:data) {[{
                       "iso": "AUS",
-                      "year": "2011",
+                      "year": '2011',
                       "population": "2500",
                       "loss": "1000"
                     },
                     {
                       "iso": "AUS",
-                      "year": "2013",
+                      "year": '2013',
                       "population": "500",
                       "loss": "2000"
                     },
                     {
                       "iso": "ESP",
-                      "year": "2014",
+                      "year": '2014',
                       "population": "500",
                       "loss": "3000"
                     },
                     {
                       "iso": "ESP",
-                      "year": "2014",
+                      "year": '2014',
                       "population": "500",
                       "loss": "4000"
                     },
                     {
                       "iso": "ESP",
-                      "year": "2014",
+                      "year": '2014',
                       "population": "500",
                       "loss": "5000"
                   }]}

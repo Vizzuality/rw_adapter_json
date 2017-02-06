@@ -7,6 +7,7 @@ class DatasetParams < Hash
     params[:data_horizon]    ||= params[:dataHorizon]
     params[:attributes_path] ||= params[:attributesPath]
     params[:data_columns]    ||= params[:dataColumns]
+
     sanitized_params = {
       id: params[:id] || nil,
       data_id: params[:data_id] || nil,

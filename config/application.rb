@@ -31,6 +31,8 @@ module RwAdapterJson
     config.api_only = true
     config.autoload_paths += Dir[Rails.root.join('app', 'models', '{**}')]
 
+    config.middleware.insert_before(Rack::Sendfile, Rack::Chunked)
+
     # config.middleware.use Rack::Attack
 
     config.generators do |g|
