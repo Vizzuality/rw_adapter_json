@@ -78,7 +78,7 @@ class JsonConnector
         case value
         when String then value.strip!
         when Hash   then value.each(&thunk)
-        when Array  then value.each { |vv| vv.strip! }
+        when Array  then value.each { |vv| vv.each(&thunk) || vv.strip! }
         end
       end
 
