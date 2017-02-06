@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 module V1
   class ConnectorsController < ApplicationController
-    before_action :disable_gc,       only:   :show
     before_action :set_connector,    except: :info
     before_action :set_query_filter, except: :info
     before_action :set_uri,          except: :info
     before_action :set_dataset,      only:  [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
-    after_action  :enable_gc,        only:   :show
     before_action :overwritable,     only:  [:update, :update_data, :overwrite, :delete_data]
+    after_action  :start_gc,        only:   :show
 
     include Authorization
 
@@ -176,12 +175,7 @@ module V1
         }
       end
 
-      def disable_gc
-        GC.start(full_mark: false, immediate_sweep: false)
-      end
-
-      def enable_gc
-        response.stream.close
+      def start_gc
         GC.start(full_mark: false, immediate_sweep: false)
       end
   end
