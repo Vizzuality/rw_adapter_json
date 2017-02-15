@@ -6,7 +6,7 @@ module V1
     before_action :set_uri,          except: :info
     before_action :set_dataset,      only:  [:show, :update, :update_data, :overwrite, :destroy, :delete_data]
     before_action :overwritable,     only:  [:update, :update_data, :overwrite, :delete_data]
-    after_action  :start_gc,        only:   :show
+    after_action  :start_gc,         only:   :show
 
     include Authorization
 
