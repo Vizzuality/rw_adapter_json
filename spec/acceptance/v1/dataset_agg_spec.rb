@@ -2,7 +2,6 @@ require 'acceptance_helper'
 
 module V1
   describe 'Datasets AGG', type: :request do
-    fixtures :service_settings
 
     context 'Aggregation for specific dataset' do
       let!(:data_columns) {{
@@ -142,6 +141,10 @@ module V1
         }
 
         before(:each) do
+          stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20iso,sum(population)%20as%20population,year,avg(loss)%20as%20loss%20from%20data%20where%20iso%20in%20('AUS','ESP')%20group%20by%20iso,year%20order%20by%20iso").
+          with(:headers => {'Accept'=>'application/json', 'Authentication'=>'not_a_token', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
+          to_return(:status => 200, :body => Oj.dump(query_1), :headers => {})
+          
           stub_request(:get, "http://192.168.99.100:8000/convert/sql2FS?sql=select%20iso,sum(population)%20as%20population,year,avg(loss)%20as%20loss%20from%20data%20where%20iso%20in%20('AUS','ESP')%20group%20by%20iso,year%20order%20by%20iso").
           with(:headers => {'Accept'=>'application/json', 'Authentication'=>'3123123der324eewr434ewr4324', 'Content-Type'=>'application/json', 'Expect'=>'', 'User-Agent'=>'Typhoeus - https://github.com/typhoeus/typhoeus'}).
           to_return(:status => 200, :body => Oj.dump(query_1), :headers => {})
